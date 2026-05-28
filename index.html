@@ -7,7 +7,6 @@
     <style>
         /* --- CLAYMORPHISM & RESPONSIVE CSS STYLES --- */
         :root {
-            /* Default Theme: Warm Orange */
             --bg-color: #2d2a28;
             --clay-shadow: 8px 8px 16px #211f1d, -8px -8px 16px #393533;
             --clay-inset: inset 6px 6px 12px #211f1d, inset -6px -6px 12px #393533;
@@ -314,6 +313,7 @@
             opacity: 0.6;
             margin-top: 5px;
             text-align: right;
+            display: block;
         }
 
         .chat-input-wrapper {
@@ -520,9 +520,6 @@
                             <button id="toCameraBtn" class="icon-btn" title="Camera Screen View">
                                 <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 12zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                             </button>
-                            <button id="voiceCallBtn" class="icon-btn" title="Initiate Voice Call" disabled>
-                                <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-                            </button>
                             <button id="videoCallBtn" class="icon-btn" title="Initiate Video Call" disabled>
                                 <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c0 .55.45-1 1-1v-3.5l4 4v-11l-4 4z"/></svg>
                             </button>
@@ -598,7 +595,7 @@
         const tabChats = document.getElementById('tabChats');
         const tabDiscover = document.getElementById('tabDiscover');
         
-        let currentTab = "chats"; // "chats" or "discover"
+        let currentTab = "chats";
 
         // Panel Switch Handles
         const chatViewPanel = document.getElementById('chatViewPanel');
@@ -607,7 +604,6 @@
 
         const toCameraBtn = document.getElementById('toCameraBtn');
         const closeCameraBtn = document.getElementById('closeCameraBtn');
-        const voiceCallBtn = document.getElementById('voiceCallBtn');
         const videoCallBtn = document.getElementById('videoCallBtn');
         const acceptCallBtn = document.getElementById('acceptCallBtn');
         const endCallBtn = document.getElementById('endCallBtn');
@@ -621,12 +617,15 @@
         const userPfpImg = document.getElementById('userPfp');
         
         let currentUser = "";
-        let currentUserAvatar = "";
         let globalUsersCache = [];
         let selectedFriendUser = null;
         let localStream = null;
         let pc = null;
         let trackingPollId = null;
+        
+        // Call State Management
+        let isCalling = false;
+        let isReceivingCall = false;
 
         // Messaging Channels
         const chatBox = document.getElementById('chatBox');
@@ -668,24 +667,22 @@
         toCameraBtn.onclick = async () => {
             switchView(cameraViewPanel);
             try {
-                if(!localStream) {
-                    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                }
+                if(!localStream) localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 selfPreviewVideo.srcObject = localStream;
             } catch(e) { alert("Camera system parameter lockout."); }
         };
+        closeCameraBtn.onclick = () => switchView(chatViewPanel);
 
-        closeCameraBtn.onclick = () => {
-            switchView(chatViewPanel);
-        };
-
-        // --- RECONSTRUCTED DATA PERSISTENCE LAYER ---
+        // --- DATA PERSISTENCE LAYER ---
         async function fetchBinRecords() {
-            const response = await fetch(`https://api.jsonbin.io/v3/b/${USERS_BIN_ID}/latest`, {
-                headers: { 'X-Master-Key': MASTER_API_KEY }
-            });
-            if (!response.ok) throw new Error("Sync failure interrogating central node.");
-            return (await response.json()).record.users || [];
+            try {
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${USERS_BIN_ID}/latest`, {
+                    headers: { 'X-Master-Key': MASTER_API_KEY }
+                });
+                if (!response.ok) return [];
+                const data = await response.json();
+                return data.record.users || [];
+            } catch (e) { return []; }
         }
 
         async function updateBinRecords(updatedUsersArray) {
@@ -696,21 +693,58 @@
             });
         }
 
-        // --- DIRECTORY ENGINE (WHATSAPP TAB CONTROLS) ---
-        tabChats.onclick = () => {
-            currentTab = "chats";
-            tabChats.classList.add('active');
-            tabDiscover.classList.remove('active');
-            renderDirectoryList();
+        // --- AUTHENTICATION ---
+        document.getElementById('registerBtn').onclick = async () => {
+            const user = usernameInput.value.trim();
+            const pass = passwordInput.value.trim();
+            if(!user || !pass) return authStatus.innerText = "Credentials required.";
+            authStatus.innerText = "Registering node...";
+            
+            let users = await fetchBinRecords();
+            if(users.find(u => u.username === user)) return authStatus.innerText = "Username exists.";
+            
+            const newUser = { 
+                username: user, password: pass, 
+                avatar: pfpUrlInput.value || `https://ui-avatars.com/api/?name=${user}`, 
+                friends: [], chats: [], activeCall: null 
+            };
+            users.push(newUser);
+            await updateBinRecords(users);
+            loginUser(newUser);
         };
 
-        tabDiscover.onclick = () => {
-            currentTab = "discover";
-            tabDiscover.classList.add('active');
-            tabChats.classList.remove('active');
-            renderDirectoryList();
+        document.getElementById('loginBtn').onclick = async () => {
+            const user = usernameInput.value.trim();
+            const pass = passwordInput.value.trim();
+            authStatus.innerText = "Authenticating...";
+            let users = await fetchBinRecords();
+            let found = users.find(u => u.username === user && u.password === pass);
+            if(found) loginUser(found);
+            else authStatus.innerText = "Invalid matrix parameters.";
         };
 
+        document.getElementById('logoutBtn').onclick = () => {
+            if(trackingPollId) clearInterval(trackingPollId);
+            appScreen.classList.add('hidden');
+            authScreen.classList.remove('hidden');
+            currentUser = "";
+        };
+
+        function loginUser(userData) {
+            currentUser = userData.username;
+            loggedInUserText.innerText = currentUser;
+            userPfpImg.src = userData.avatar;
+            authScreen.classList.add('hidden');
+            appScreen.classList.remove('hidden');
+            
+            // Start Polling Matrix
+            trackingPollId = setInterval(syncNetworkState, 3000);
+            syncNetworkState();
+        }
+
+        // --- DIRECTORY ENGINE ---
+        tabChats.onclick = () => { currentTab = "chats"; tabChats.classList.add('active'); tabDiscover.classList.remove('active'); renderDirectoryList(); };
+        tabDiscover.onclick = () => { currentTab = "discover"; tabDiscover.classList.add('active'); tabChats.classList.remove('active'); renderDirectoryList(); };
         userSearchInput.oninput = () => renderDirectoryList();
 
         function renderDirectoryList() {
@@ -718,55 +752,40 @@
             const searchQuery = userSearchInput.value.toLowerCase().trim();
             const selfRecord = globalUsersCache.find(u => u.username === currentUser);
             if (!selfRecord) return;
-
             const myFriendsList = selfRecord.friends || [];
 
-            let filteredUsers = globalUsersCache.filter(u => u.username !== currentUser);
-            if (searchQuery) {
-                filteredUsers = filteredUsers.filter(u => u.username.toLowerCase().includes(searchQuery));
-            }
+            let filtered = globalUsersCache.filter(u => u.username !== currentUser);
+            if (searchQuery) filtered = filtered.filter(u => u.username.toLowerCase().includes(searchQuery));
 
             if (currentTab === "chats") {
-                // Only show users who are in your friend list
-                const chatFriends = filteredUsers.filter(u => myFriendsList.includes(u.username));
-                if (chatFriends.length === 0) {
-                    userListSpace.innerHTML = `<div style="text-align:center; font-size:12px; opacity:0.5; margin-top:25px;">No active conversations. Find friends in the Discover tab!</div>`;
-                    return;
-                }
+                const chatFriends = filtered.filter(u => myFriendsList.includes(u.username));
+                if (!chatFriends.length) return userListSpace.innerHTML = `<div style="text-align:center; font-size:12px; opacity:0.5; margin-top:25px;">No active conversations. Find friends in the Discover tab!</div>`;
+                
                 chatFriends.forEach(user => {
                     const item = document.createElement('div');
                     item.className = `user-item ${selectedFriendUser && selectedFriendUser.username === user.username ? 'active' : ''}`;
                     item.innerHTML = `
                         <div class="user-item-info">
-                            <img src="${user.avatar}" style="width:38px; height:38px; border-radius:50%; object-fit:cover;" onerror="this.src='https://ui-avatars.com/api/?name=${user.username}'">
-                            <div>
-                                <div class="user-item-name">${user.username}</div>
-                                <div style="font-size:11px; color:var(--success);">Connected Friend</div>
-                            </div>
-                        </div>
-                    `;
+                            <img src="${user.avatar}" class="user-avatar" style="width:38px; height:38px;">
+                            <div><div class="user-item-name">${user.username}</div><div style="font-size:11px; color:var(--success);">Connected</div></div>
+                        </div>`;
                     item.onclick = () => establishConversationTarget(user);
                     userListSpace.appendChild(item);
                 });
             } else {
-                // Discover Tab: Show all platform users with an actionable Add button
-                if (filteredUsers.length === 0) {
-                    userListSpace.innerHTML = `<div style="text-align:center; font-size:12px; opacity:0.5; margin-top:25px;">No matching directory entries found.</div>`;
-                    return;
-                }
-                filteredUsers.forEach(user => {
+                if (!filtered.length) return userListSpace.innerHTML = `<div style="text-align:center; font-size:12px; opacity:0.5; margin-top:25px;">No matching directory entries.</div>`;
+                filtered.forEach(user => {
                     const isFriend = myFriendsList.includes(user.username);
                     const item = document.createElement('div');
                     item.className = 'user-item';
                     item.style.cursor = "default";
                     item.innerHTML = `
                         <div class="user-item-info">
-                            <img src="${user.avatar}" style="width:38px; height:38px; border-radius:50%; object-fit:cover;" onerror="this.src='https://ui-avatars.com/api/?name=${user.username}'">
+                            <img src="${user.avatar}" class="user-avatar" style="width:38px; height:38px;">
                             <div class="user-item-name">${user.username}</div>
                         </div>
                         ${isFriend ? `<span style="font-size:11px; color:var(--success); font-weight:bold;">Friend</span>` 
-                                   : `<button class="add-friend-btn" onclick="executeFriendshipBind(event, '${user.username}')">Add Friend</button>`}
-                    `;
+                                   : `<button class="add-friend-btn" onclick="executeFriendshipBind(event, '${user.username}')">Add Friend</button>`}`;
                     userListSpace.appendChild(item);
                 });
             }
@@ -774,326 +793,203 @@
 
         async function executeFriendshipBind(event, targetName) {
             event.stopPropagation();
-            try {
-                let users = await fetchBinRecords();
-                let selfIdx = users.findIndex(u => u.username === currentUser);
-                let targetIdx = users.findIndex(u => u.username === targetName);
+            event.target.innerText = "Adding...";
+            let users = await fetchBinRecords();
+            let selfIdx = users.findIndex(u => u.username === currentUser);
+            let targetIdx = users.findIndex(u => u.username === targetName);
 
-                if (selfIdx !== -1 && targetIdx !== -1) {
-                    if (!users[selfIdx].friends) users[selfIdx].friends = [];
-                    if (!users[targetIdx].friends) users[targetIdx].friends = [];
-
-                    if (!users[selfIdx].friends.includes(targetName)) users[selfIdx].friends.push(targetName);
-                    if (!users[targetIdx].friends.includes(currentUser)) users[targetIdx].friends.push(currentUser);
-
-                    await updateBinRecords(users);
-                    globalUsersCache = users;
-                    renderDirectoryList();
-                }
-            } catch(e) { alert("Friendship structural link failure."); }
+            if (selfIdx > -1 && targetIdx > -1) {
+                if(!users[selfIdx].friends.includes(targetName)) users[selfIdx].friends.push(targetName);
+                if(!users[targetIdx].friends.includes(currentUser)) users[targetIdx].friends.push(currentUser);
+                await updateBinRecords(users);
+                syncNetworkState();
+            }
         }
 
-        function establishConversationTarget(user) {
-            selectedFriendUser = user;
-            renderDirectoryList();
-
-            activeTargetName.innerText = user.username;
-            activeTargetAvatar.src = user.avatar;
-            channelConnectionIndicator.innerText = "Secure Direct Node Tunnel";
-            channelConnectionIndicator.style.color = "var(--success)";
-
+        function establishConversationTarget(userObj) {
+            selectedFriendUser = userObj;
+            activeTargetName.innerText = userObj.username;
+            activeTargetAvatar.src = userObj.avatar;
+            channelConnectionIndicator.innerText = "Secured Channel";
+            
             chatInput.disabled = false;
             sendChatBtn.disabled = false;
-            voiceCallBtn.disabled = false;
             videoCallBtn.disabled = false;
-            chatInput.placeholder = `Message ${user.username}...`;
-
-            // Clear chatBox UI for selected thread view layout
-            chatBox.innerHTML = `<div style="text-align: center; color: #666; font-size: 12px; margin-top: auto;">Direct history established with ${user.username}.</div>`;
-        }
-
-        // --- ACCOUNT AUTH PIPELINES ---
-        function setStatus(element, msg, color) {
-            element.innerText = msg;
-            element.style.color = `var(--${color})`;
-        }
-
-        function handleLoginSuccess(user, avatar) {
-            currentUser = user;
-            currentUserAvatar = avatar;
-            loggedInUserText.innerText = user;
-            userPfpImg.src = avatar;
-            authScreen.classList.add('hidden');
-            appScreen.classList.remove('hidden');
-            localStorage.setItem('lunarSession', JSON.stringify({ user, avatar }));
+            chatInput.placeholder = `Message ${userObj.username}...`;
             
-            // Launch Automated Workgroup Polling Engine Loop
-            startPlatformPollingLoop();
+            renderDirectoryList();
+            renderChatHistory();
         }
 
-        document.getElementById('logoutBtn').onclick = () => {
-            localStorage.removeItem('lunarSession');
-            location.reload();
+        // --- CHAT SYSTEM ---
+        sendChatBtn.onclick = async () => {
+            const text = chatInput.value.trim();
+            if(!text || !selectedFriendUser) return;
+            chatInput.value = "";
+            
+            let users = await fetchBinRecords();
+            let selfUser = users.find(u => u.username === currentUser);
+            let targetUser = users.find(u => u.username === selectedFriendUser.username);
+            
+            const msgObj = { sender: currentUser, text: text, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
+            
+            if(!selfUser.chats) selfUser.chats = [];
+            if(!targetUser.chats) targetUser.chats = [];
+            
+            selfUser.chats.push({ with: targetUser.username, ...msgObj });
+            targetUser.chats.push({ with: currentUser, ...msgObj });
+            
+            await updateBinRecords(users);
+            syncNetworkState();
         };
 
-        document.getElementById('registerBtn').onclick = async () => {
-            const user = usernameInput.value.trim();
-            const pass = passwordInput.value.trim();
-            const pfp = pfpUrlInput.value.trim() || `https://ui-avatars.com/api/?name=${user}`;
+        function renderChatHistory() {
+            if(!selectedFriendUser) return;
+            const selfRecord = globalUsersCache.find(u => u.username === currentUser);
+            if(!selfRecord || !selfRecord.chats) return chatBox.innerHTML = "";
             
-            if (!user || !pass) return setStatus(authStatus, "Required parameters absent.", "danger");
-            setStatus(authStatus, "Generating structural profile...", "primary");
-            try {
-                let users = await fetchBinRecords();
-                if (users.some(u => u.username.toLowerCase() === user.toLowerCase())) {
-                    return setStatus(authStatus, "Identifier already mapped.", "danger");
-                }
-                users.push({ username: user, password: pass, avatar: pfp, friends: [], mailbox: [] });
-                await updateBinRecords(users);
-                setStatus(authStatus, "Registration authorized! Please Login.", "success");
-            } catch (err) { setStatus(authStatus, err.message, "danger"); }
-        };
-
-        document.getElementById('loginBtn').onclick = async () => {
-            const user = usernameInput.value.trim();
-            const pass = passwordInput.value.trim();
-            if (!user || !pass) return setStatus(authStatus, "Missing credential records.", "danger");
-            setStatus(authStatus, "Authenticating sequence...", "primary");
-            try {
-                let users = await fetchBinRecords();
-                const matched = users.find(u => u.username === user && u.password === pass);
-                if (matched) {
-                    handleLoginSuccess(matched.username, matched.avatar);
-                } else {
-                    setStatus(authStatus, "Authentication vector rejection.", "danger");
-                }
-            } catch (err) { setStatus(authStatus, err.message, "danger"); }
-        };
-
-        // --- CENTRAL BACKGROUND AUTOMATION LOOP (SIGNALS & MESSAGES) ---
-        function startPlatformPollingLoop() {
-            if (trackingPollId) clearInterval(trackingPollId);
-            
-            // Fast execution on startup followed by 3.5s automated polling ticks
-            pollPlatformSyncAction();
-            trackingPollId = setInterval(pollPlatformSyncAction, 3500);
-        }
-
-        async function pollPlatformSyncAction() {
-            try {
-                const users = await fetchBinRecords();
-                globalUsersCache = users;
-                renderDirectoryList();
-
-                let selfRecord = users.find(u => u.username === currentUser);
-                if (!selfRecord || !selfRecord.mailbox || selfRecord.mailbox.length === 0) return;
-
-                let incomingMessages = [];
-                let structureAltered = false;
-
-                // Process mailbox packets matching specific system action filters
-                selfRecord.mailbox.forEach(packet => {
-                    if (packet.type === "text") {
-                        if (selectedFriendUser && packet.from === selectedFriendUser.username) {
-                            appendMessage(packet.from, packet.text, packet.avatar, false);
-                        }
-                        structureAltered = true;
-                    } 
-                    else if (packet.type === "offer") {
-                        // Launch Immersive Call Stage for incoming invitation offers
-                        handleIncomingCallOffer(packet);
-                        structureAltered = true;
-                    }
-                    else if (packet.type === "answer") {
-                        // Finalize call routing pipelines
-                        handleIncomingCallAnswer(packet);
-                        structureAltered = true;
-                    }
-                });
-
-                // Flush processed structural nodes immediately from central mailbox index
-                if (structureAltered) {
-                    let freshUsers = await fetchBinRecords();
-                    let targetSelf = freshUsers.find(u => u.username === currentUser);
-                    if (targetSelf) {
-                        targetSelf.mailbox = targetSelf.mailbox.filter(p => p.type !== "text" && p.type !== "offer" && p.type !== "answer");
-                        await updateBinRecords(freshUsers);
-                    }
-                }
-
-            } catch (e) { console.error("Sync polling lifecycle skip exception:", e); }
-        }
-
-        // --- AUTOMATED CHAT MESSAGING SUBSYSTEM ---
-        function appendMessage(sender, text, avatar, isSelf) {
-            if (chatBox.innerHTML.includes("No active friend session") || chatBox.innerHTML.includes("Direct history established")) {
-                chatBox.innerHTML = "";
-            }
-            const msgDiv = document.createElement('div');
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            msgDiv.className = `chat-msg ${isSelf ? 'self' : 'other'}`;
-            msgDiv.innerHTML = `
-                <div class="msg-header">
-                    <img src="${avatar}" style="width:18px; height:18px; border-radius:50%; object-fit:cover;">
-                    <span class="sender" style="font-weight:bold; font-size:11px; margin-left:5px;">${sender}</span>
+            const thread = selfRecord.chats.filter(c => c.with === selectedFriendUser.username);
+            chatBox.innerHTML = thread.map(msg => `
+                <div class="chat-msg ${msg.sender === currentUser ? 'self' : 'other'}">
+                    ${msg.text}
+                    <span class="timestamp">${msg.time}</span>
                 </div>
-                <div style="word-break: break-word; margin-top:4px;">${text}</div>
-                <div class="timestamp">${time}</div>`;
-            chatBox.appendChild(msgDiv);
+            `).join('');
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        sendChatBtn.onclick = async () => {
-            const text = chatInput.value.trim();
-            if (!text || !selectedFriendUser) return;
-
-            appendMessage(currentUser, text, currentUserAvatar, true);
-            chatInput.value = "";
-
-            try {
-                let users = await fetchBinRecords();
-                let targetPeer = users.find(u => u.username === selectedFriendUser.username);
-                if (targetPeer) {
-                    if (!targetPeer.mailbox) targetPeer.mailbox = [];
-                    targetPeer.mailbox.push({
-                        type: "text",
-                        from: currentUser,
-                        avatar: currentUserAvatar,
-                        text: text,
-                        time: Date.now()
-                    });
-                    await updateBinRecords(users);
-                }
-            } catch (e) { console.error("Message tracking write abort."); }
-        };
-        chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendChatBtn.click(); });
-
-
-        // --- AUTOMATED WEBRTC HANDSHAKE ROUTING (NO Room IDs REQUIRED) ---
-        async function prepMediaEngineTracks() {
-            if (!localStream) {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            }
-            callLocalVideo.srcObject = localStream;
+        // --- POLLING & SYNC ENGINE ---
+        async function syncNetworkState() {
+            globalUsersCache = await fetchBinRecords();
+            if(!globalUsersCache.length) return;
             
-            if (pc) { try { pc.close(); } catch(e){} }
-            pc = new RTCPeerConnection(servers);
+            const selfRecord = globalUsersCache.find(u => u.username === currentUser);
+            if(!selfRecord) return;
 
-            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-            pc.ontrack = (e) => { callRemoteVideo.srcObject = e.streams[0]; };
+            renderDirectoryList();
+            if(currentTab === "chats") renderChatHistory();
+
+            // Check for Call State changes
+            if(selfRecord.activeCall) {
+                // Incoming Call Detected
+                if(selfRecord.activeCall.type === 'offer' && !isCalling && !isReceivingCall) {
+                    isReceivingCall = true;
+                    showIncomingCallScreen(selfRecord.activeCall);
+                } 
+                // Caller sees that Callee Answered
+                else if (selfRecord.activeCall.type === 'answer' && isCalling && pc && pc.signalingState !== 'stable') {
+                    pc.setRemoteDescription(new RTCSessionDescription(selfRecord.activeCall.sdp));
+                    callTypeLabel.innerText = "Connection Established.";
+                }
+            } else {
+                // If the DB call state is cleared but we are in a call, it means the other person hung up.
+                if(isCalling || isReceivingCall) {
+                    terminateCallLocally();
+                }
+            }
         }
 
-        // Action Trigger 1: Triggering standard Outbound Call Offers
-        async function initiateOutboundCallTunnel(callType) {
-            if (!selectedFriendUser) return;
+        // --- WEBRTC VIDEO CALLING logic ---
+        videoCallBtn.onclick = async () => {
+            if(!selectedFriendUser) return;
+            isCalling = true;
+            switchView(callStageViewPanel);
             callActiveName.innerText = selectedFriendUser.username;
             callActiveAvatar.src = selectedFriendUser.avatar;
-            callTypeLabel.innerText = `${callType.toUpperCase()} CALL - Ringing...`;
+            callTypeLabel.innerText = "Calling & Gathering Routes...";
+            endCallBtn.classList.remove('hidden');
             acceptCallBtn.classList.add('hidden');
-            
-            if (callType === 'voice') callRemoteVideo.classList.add('hidden');
-            else callRemoteVideo.classList.remove('hidden');
 
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                callLocalVideo.srcObject = localStream;
+
+                pc = new RTCPeerConnection(servers);
+                localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+                pc.ontrack = (event) => callRemoteVideo.srcObject = event.streams[0];
+
+                // JSONBin limitation workaround: Wait for ICE gathering to complete before sending SDP
+                pc.onicegatheringstatechange = async () => {
+                    if (pc.iceGatheringState === 'complete') {
+                        callTypeLabel.innerText = "Ringing...";
+                        let users = await fetchBinRecords();
+                        let target = users.find(u => u.username === selectedFriendUser.username);
+                        target.activeCall = { caller: currentUser, type: 'offer', sdp: pc.localDescription };
+                        await updateBinRecords(users);
+                    }
+                };
+
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+                
+            } catch (err) { alert("Camera error."); terminateCallLocally(); }
+        };
+
+        function showIncomingCallScreen(callData) {
             switchView(callStageViewPanel);
-
-            await prepMediaEngineTracks();
-
-            // Create WebRTC SDP offer token
-            const offer = await pc.createOffer();
-            await pc.setLocalDescription(offer);
-
-            // Forward connection metadata directly into remote friend target profile mail stack
-            let users = await fetchBinRecords();
-            let targetPeer = users.find(u => u.username === selectedFriendUser.username);
-            if (targetPeer) {
-                if (!targetPeer.mailbox) targetPeer.mailbox = [];
-                targetPeer.mailbox.push({
-                    type: "offer",
-                    callMode: callType,
-                    from: currentUser,
-                    sdp: offer.sdp
-                });
-                await updateBinRecords(users);
-            }
-        }
-
-        voiceCallBtn.onclick = () => initiateOutboundCallTunnel('voice');
-        videoCallBtn.onclick = () => initiateOutboundCallTunnel('video');
-
-        // Action Trigger 2: Parsing Inbound System Call Invitation Offers
-        let dynamicTrackedOfferPacket = null;
-        async function handleIncomingCallOffer(packet) {
-            dynamicTrackedOfferPacket = packet;
-            
-            callActiveName.innerText = packet.from;
-            callTypeLabel.innerText = `INCOMING ${packet.callMode.toUpperCase()} CALL...`;
+            callActiveName.innerText = callData.caller;
+            callActiveAvatar.src = `https://ui-avatars.com/api/?name=${callData.caller}`;
+            callTypeLabel.innerText = "Incoming Video Call...";
             acceptCallBtn.classList.remove('hidden');
+            endCallBtn.classList.remove('hidden');
 
-            if (packet.callMode === 'voice') callRemoteVideo.classList.add('hidden');
-            else callRemoteVideo.classList.remove('hidden');
+            acceptCallBtn.onclick = async () => {
+                acceptCallBtn.classList.add('hidden');
+                callTypeLabel.innerText = "Connecting Feed...";
+                try {
+                    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    callLocalVideo.srcObject = localStream;
 
-            // Find match profile context inside active user arrays
-            let trackingPeerRecord = globalUsersCache.find(u => u.username === packet.from);
-            if (trackingPeerRecord) callActiveAvatar.src = trackingPeerRecord.avatar;
+                    pc = new RTCPeerConnection(servers);
+                    localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+                    pc.ontrack = (event) => callRemoteVideo.srcObject = event.streams[0];
 
-            switchView(callStageViewPanel);
+                    await pc.setRemoteDescription(new RTCSessionDescription(callData.sdp));
+
+                    pc.onicegatheringstatechange = async () => {
+                        if (pc.iceGatheringState === 'complete') {
+                            callTypeLabel.innerText = "Connection Established.";
+                            let users = await fetchBinRecords();
+                            let caller = users.find(u => u.username === callData.caller);
+                            caller.activeCall = { type: 'answer', sdp: pc.localDescription };
+                            await updateBinRecords(users);
+                        }
+                    };
+
+                    const answer = await pc.createAnswer();
+                    await pc.setLocalDescription(answer);
+                } catch(e) { terminateCallLocally(); }
+            };
         }
 
-        acceptCallBtn.onclick = async () => {
-            if (!dynamicTrackedOfferPacket) return;
-            acceptCallBtn.classList.add('hidden');
-            callTypeLabel.innerText = "Connecting Node Stream...";
-
-            await prepMediaEngineTracks();
-
-            // Direct WebRTC Handshake binding mapping configuration
-            await pc.setRemoteDescription(new RTCSessionDescription({
-                type: 'offer',
-                sdp: dynamicTrackedOfferPacket.sdp
-            }));
-
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-
-            // Forward structural answer token straight back to caller mail slot
+        // Hang Up Logic (Both users)
+        endCallBtn.onclick = async () => {
+            callTypeLabel.innerText = "Hanging up...";
             let users = await fetchBinRecords();
-            let masterCaller = users.find(u => u.username === dynamicTrackedOfferPacket.from);
-            if (masterCaller) {
-                if (!masterCaller.mailbox) masterCaller.mailbox = [];
-                masterCaller.mailbox.push({
-                    type: "answer",
-                    from: currentUser,
-                    sdp: answer.sdp
-                });
-                await updateBinRecords(users);
-            }
+            
+            // Clear call state for both self and whoever we were interacting with
+            let selfU = users.find(u => u.username === currentUser);
+            let otherU = null;
+            if(selfU && selfU.activeCall && selfU.activeCall.caller) otherU = users.find(u => u.username === selfU.activeCall.caller);
+            if(selectedFriendUser) otherU = users.find(u => u.username === selectedFriendUser.username);
+            
+            if(selfU) selfU.activeCall = null;
+            if(otherU) otherU.activeCall = null;
+            
+            await updateBinRecords(users);
+            terminateCallLocally();
         };
 
-        // Action Trigger 3: Final Call Pipeline Verification Answers
-        async function handleIncomingCallAnswer(packet) {
-            if (pc && pc.signalingState !== "stable") {
-                await pc.setRemoteDescription(new RTCSessionDescription({
-                    type: 'answer',
-                    sdp: packet.sdp
-                }));
-                callTypeLabel.innerText = "Call Grid Connected";
-            }
+        function terminateCallLocally() {
+            isCalling = false;
+            isReceivingCall = false;
+            if(pc) { pc.close(); pc = null; }
+            if(localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+            callRemoteVideo.srcObject = null;
+            callLocalVideo.srcObject = null;
+            switchView(chatViewPanel);
         }
 
-        endCallBtn.onclick = () => {
-            if (pc) { try { pc.close(); } catch(e){} pc = null; }
-            callRemoteVideo.srcObject = null;
-            switchView(chatViewPanel);
-        };
-
-        // --- PLATFORM INITIALIZATION ENTRYPOINT ---
-        window.onload = () => {
-            const savedTheme = localStorage.getItem('lunarTheme') || 'default';
-            applyTheme(savedTheme);
-
-            const savedSession = JSON.parse(localStorage.getItem('lunarSession'));
-            if (savedSession) handleLoginSuccess(savedSession.user, savedSession.avatar);
-        };
     </script>
 </body>
 </html>
