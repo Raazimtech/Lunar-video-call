@@ -24,7 +24,7 @@
             --clay-shadow: 8px 8px 16px #dec9ce, -8px -8px 16px #ffffff;
             --clay-inset: inset 6px 6px 12px #dec9ce, inset -6px -6px 12px #ffffff;
             --primary: #ffb7c5;
-            --success: #27ae60;
+            --success: #98fb98;
             --danger: #ff6b6b;
             --text-color: #5d2e46;
             --chat-bg: #ffe4e9;
@@ -74,7 +74,7 @@
             position: relative;
         }
 
-        /* --- AUTH SCREEN --- */
+        /* --- AUTH SCREEN LAYOUT --- */
         #authScreen {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -99,7 +99,7 @@
             box-sizing: border-box;
         }
 
-        /* --- APP VIEWPORT STRUCTURE --- */
+        /* --- APPLICATION CONTAINER WORKSPACE --- */
         #appScreen {
             width: 100%;
             height: 100%;
@@ -109,7 +109,7 @@
             background: var(--bg-color);
         }
 
-        /* --- LEFT SIDEBAR --- */
+        /* --- WHATSAPP-STYLE SIDEBAR DIRECTORY --- */
         .sidebar {
             width: var(--sidebar-width);
             height: 100%;
@@ -118,7 +118,7 @@
             display: flex;
             flex-direction: column;
             z-index: 10;
-            border-right: 1px solid rgba(0,0,0,0.05);
+            border-right: 1px solid rgba(0,0,0,0.1);
             flex-shrink: 0;
         }
 
@@ -138,6 +138,28 @@
 
         .sidebar-search {
             padding: 10px 15px;
+        }
+
+        .directory-tabs {
+            display: flex;
+            padding: 0 15px;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 8px;
+            font-size: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: var(--clay-shadow);
+            font-weight: bold;
+        }
+        .tab-btn.active {
+            box-shadow: var(--clay-inset);
+            color: var(--primary);
         }
 
         .user-list-container {
@@ -161,10 +183,7 @@
             background: var(--bg-color);
         }
 
-        .user-item:active {
-            box-shadow: var(--clay-inset);
-        }
-
+        .user-item:active { box-shadow: var(--clay-inset); }
         .user-item.active {
             box-shadow: var(--clay-inset);
             border: 1px solid var(--primary);
@@ -181,7 +200,16 @@
             font-size: 14px;
         }
 
-        /* --- MAIN CONTENT CANVAS --- */
+        .add-friend-btn {
+            font-size: 11px;
+            padding: 6px 12px;
+            min-width: auto;
+            border-radius: 8px;
+            background: var(--primary);
+            color: white;
+        }
+
+        /* --- MAIN VIEWPORTS CANVAS --- */
         .main-canvas {
             flex: 1;
             height: 100%;
@@ -191,7 +219,6 @@
             background: var(--chat-bg);
         }
 
-        /* --- WINDOW VIEWS --- */
         .view-panel {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -201,11 +228,9 @@
             z-index: 1;
         }
 
-        .view-panel.active {
-            z-index: 5;
-        }
+        .view-panel.active { z-index: 5; }
 
-        /* --- CHAT VIEW COMPONENT --- */
+        /* --- CORE HEADER ELEMENT --- */
         .view-header {
             height: 70px;
             padding: 0 20px;
@@ -225,7 +250,7 @@
 
         .header-actions {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             align-items: center;
         }
 
@@ -249,6 +274,7 @@
         .icon-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         .icon-btn svg { width: 20px; height: 20px; fill: currentColor; }
 
+        /* --- CHAT TIMELINE --- */
         .chat-box {
             flex: 1;
             padding: 20px;
@@ -299,21 +325,7 @@
             align-items: center;
         }
 
-        /* --- OVERLAY MANAGEMENT MODALS (NO CLUMP ROOM CONNECTORS) --- */
-        .workspace-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(8px);
-            z-index: 20;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        /* --- CAMERA SCREEN PANELS --- */
+        /* --- SANDBOX CAMERA COMPONENT VIEW --- */
         .camera-canvas {
             display: flex;
             flex-direction: column;
@@ -334,7 +346,6 @@
             border-radius: 24px;
             box-shadow: var(--clay-inset);
             overflow: hidden;
-            position: relative;
         }
 
         .camera-viewport video {
@@ -343,7 +354,7 @@
             object-fit: cover;
         }
 
-        /* --- CALL OVERLAY ROOM INTERFACE --- */
+        /* --- IMMERSIVE CALL STAGE OVERLAY --- */
         .call-stage {
             display: flex;
             flex-direction: column;
@@ -354,7 +365,7 @@
             align-items: center;
             padding: 40px 20px;
             box-sizing: border-box;
-            background: #1a1a1a;
+            background: #18181c;
         }
 
         .remote-video-fullscreen {
@@ -368,7 +379,7 @@
         .local-video-pip {
             position: absolute;
             top: 30px; right: 30px;
-            width: 130px; aspect-ratio: 3/4;
+            width: 120px; aspect-ratio: 3/4;
             border-radius: 16px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.5);
             object-fit: cover;
@@ -383,34 +394,29 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 30px;
+            gap: 20px;
         }
 
-        .call-meta-profile {
-            text-align: center;
-            color: #fff;
-        }
-
+        .call-meta-profile { text-align: center; color: #fff; }
         .call-meta-profile img {
             width: 90px; height: 90px; border-radius: 50%;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-            margin-bottom: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4); margin-bottom: 15px;
+            object-fit: cover;
         }
 
         .call-controls {
             display: flex;
-            gap: 20px;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 15px 30px;
-            border-radius: 30px;
-            backdrop-filter: blur(10px);
+            gap: 25px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px 35px;
+            border-radius: 40px;
+            backdrop-filter: blur(12px);
         }
 
-        /* --- SYSTEM REUSABLES --- */
+        /* --- REUSABLES --- */
         .logo-container { display: flex; justify-content: center; margin-bottom: 10px; }
         .logo { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; box-shadow: var(--clay-shadow); }
         .user-avatar { width: 44px; height: 44px; border-radius: 50%; box-shadow: var(--clay-inset); object-fit: cover; }
-        .card { background: var(--bg-color); padding: 25px; border-radius: 20px; display: flex; flex-direction: column; gap: 15px; box-shadow: var(--clay-shadow); }
         .hidden { display: none !important; }
         
         input {
@@ -418,27 +424,24 @@
             color: var(--text-color); font-size: 14px; box-shadow: var(--clay-inset); outline: none;
             transition: all 0.2s ease; width: 100%; box-sizing: border-box;
         }
-        input:focus { box-shadow: inset 8px 8px 16px rgba(0,0,0,0.1), 0 0 0 2px var(--primary); }
+        input:focus { box-shadow: inset 8px 8px 16px rgba(0,0,0,0.2), 0 0 0 2px var(--primary); }
 
-        .buttons { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 10px; }
         button {
             padding: 14px 20px; background-color: var(--bg-color); color: var(--primary);
             border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 14px;
-            flex: 1; min-width: 120px; box-shadow: var(--clay-shadow); transition: all 0.2s ease;
+            box-shadow: var(--clay-shadow); transition: all 0.2s ease;
         }
         button.secondary { color: var(--success); }
         button.danger { color: var(--danger); }
         button.action { background-color: var(--primary); color: white; box-shadow: 4px 4px 10px rgba(0,0,0,0.15); }
         button:active:not(:disabled) { box-shadow: var(--clay-inset); }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .status { font-weight: bold; text-align: center; margin: 10px 0; font-size: 13px; }
+        .status { font-weight: bold; text-align: center; margin: 5px 0; font-size: 13px; }
 
-        /* --- MOBILE RESPONSIVENESS --- */
         @media (max-width: 768px) {
             #appScreen { flex-direction: column; }
-            .sidebar { width: 100%; height: 40%; }
-            .main-canvas { height: 60%; }
-            .local-video-pip { width: 90px; top: 15px; right: 15px; }
+            .sidebar { width: 100%; height: 45%; }
+            .main-canvas { height: 55%; }
         }
     </style>
 </head>
@@ -451,16 +454,16 @@
                 <div class="logo-container">
                     <img src="logo.png" alt="Lunar Call" class="logo" onerror="this.style.display='none'">
                 </div>
-                <h1 style="margin:0;">Lunar Call</h1>
-                <p style="font-size: 12px; text-align: center; color: #aaa; margin-top: -10px;">Secure Video & Chat Experience</p>
+                <h1 style="margin:0; text-align:center;">Lunar Call</h1>
+                <p style="font-size: 12px; text-align: center; color: #aaa; margin-top: -5px;">Secure Messaging & Call Network</p>
                 
                 <input type="text" id="username" placeholder="Username" autocomplete="off">
                 <input type="password" id="password" placeholder="Password" autocomplete="off">
                 <input type="text" id="pfpUrl" placeholder="Profile Picture URL (Optional)">
                 
-                <div class="buttons">
-                    <button id="loginBtn" class="action">Login</button>
-                    <button id="registerBtn" class="secondary">Register</button>
+                <div style="display:flex; gap:15px; margin-top:10px;">
+                    <button id="loginBtn" class="action" style="flex:1;">Login</button>
+                    <button id="registerBtn" class="secondary" style="flex:1;">Register</button>
                 </div>
                 <p id="authStatus" class="status"></p>
             </div>
@@ -474,11 +477,11 @@
                         <img id="userPfp" src="" class="user-avatar" onerror="this.src='https://ui-avatars.com/api/?name=User'">
                         <div>
                             <div id="loggedInUser" style="font-weight: bold; font-size:14px; color: var(--primary);"></div>
-                            <div style="font-size:11px; opacity:0.6;">Online</div>
+                            <div style="font-size:11px; opacity:0.6;">Online Matrix</div>
                         </div>
                     </div>
                     
-                    <select id="themeSelect" style="padding: 5px; border-radius: 8px; cursor: pointer; color: var(--primary); background: var(--bg-color); border:none; box-shadow: var(--clay-shadow); font-weight: bold; font-size:11px;">
+                    <select id="themeSelect" style="padding: 6px; border-radius: 8px; cursor: pointer; color: var(--primary); background: var(--bg-color); border:none; box-shadow: var(--clay-shadow); font-weight: bold; font-size:11px;">
                         <option value="default">🍊 Orange</option>
                         <option value="sakura">🌸 Sakura</option>
                         <option value="midnight">🌙 Midnight</option>
@@ -487,76 +490,58 @@
                 </div>
 
                 <div class="sidebar-search">
-                    <input type="text" id="userSearchInput" placeholder="🔍 Search users/history...">
+                    <input type="text" id="userSearchInput" placeholder="🔍 Search platform users...">
                 </div>
 
-                <div class="user-list-container" id="userListSpace">
-                    </div>
+                <div class="directory-tabs">
+                    <div id="tabChats" class="tab-btn active">CHATS</div>
+                    <div id="tabDiscover" class="tab-btn">DISCOVER</div>
+                </div>
 
-                <div style="padding: 15px; margin-top: auto;">
-                    <button id="logoutBtn" class="danger" style="width:100%; min-width:auto;">Logout Account</button>
+                <div class="user-list-container" id="userListSpace"></div>
+
+                <div style="padding: 15px;">
+                    <button id="logoutBtn" class="danger" style="width:100%;">Logout Account</button>
                 </div>
             </div>
 
             <div class="main-canvas">
                 
-                <div id="roomConfigOverlay" class="workspace-overlay">
-                    <div class="card" style="width:100%; max-width:460px;">
-                        <h3>Room Connection Dashboard</h3>
-                        <p style="text-align: center; font-size: 13px; color: #aaa; margin-top:-10px;">Setup structural WebRTC channels safely.</p>
-                        <input type="text" id="callBinId" placeholder="Room ID (Leave blank to generate new room)">
-                        
-                        <div class="buttons">
-                            <button id="initSystemBtn" class="action">1. Init Media Engine</button>
-                            <button id="createCallBtn" disabled>2. Create Room</button>
-                            <button id="joinCallBtn" disabled>2. Join Room</button>
-                            <button id="checkAnswerBtn" disabled>3. Sync Wire</button>
-                        </div>
-                        <p id="callStatus" class="status" style="color: var(--primary);">System Uninitialized.</p>
-                        <button id="closeConfigOverlayBtn" class="secondary" style="margin-top:5px; min-width:auto;">Go to Messaging Window</button>
-                    </div>
-                </div>
-
                 <div id="chatViewPanel" class="view-panel active">
                     <div class="view-header">
                         <div class="active-user-meta">
-                            <img id="activeTargetAvatar" src="https://ui-avatars.com/api/?name=Peer" class="user-avatar">
+                            <img id="activeTargetAvatar" src="https://ui-avatars.com/api/?name=System" class="user-avatar">
                             <div>
-                                <div id="activeTargetName" style="font-weight: bold; font-size:15px;">Active Channel</div>
-                                <div id="channelConnectionIndicator" style="font-size:11px; color: var(--danger);">Disconnected</div>
+                                <div id="activeTargetName" style="font-weight: bold; font-size:15px;">Lunar Workspace</div>
+                                <div id="channelConnectionIndicator" style="font-size:11px; color:#aaa;">Select a chat friend to begin thread</div>
                             </div>
                         </div>
                         <div class="header-actions">
-                            <button id="triggerDashboardBtn" class="icon-btn" title="Room Connections">
-                                <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
-                            </button>
-                            <button id="toCameraBtn" class="icon-btn" title="Self View Camera">
+                            <button id="toCameraBtn" class="icon-btn" title="Camera Screen View">
                                 <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 12zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                             </button>
-                            <button id="voiceCallBtn" class="icon-btn" title="Voice Call" disabled>
+                            <button id="voiceCallBtn" class="icon-btn" title="Initiate Voice Call" disabled>
                                 <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
                             </button>
-                            <button id="videoCallBtn" class="icon-btn" title="Video Call" disabled>
+                            <button id="videoCallBtn" class="icon-btn" title="Initiate Video Call" disabled>
                                 <svg viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c0 .55.45-1 1-1v-3.5l4 4v-11l-4 4z"/></svg>
                             </button>
                         </div>
                     </div>
 
                     <div id="chatBox" class="chat-box">
-                        <div style="text-align: center; color: #666; font-size: 12px; margin-top: auto;">Open settings or select a peer to link configurations...</div>
+                        <div style="text-align: center; color: #666; font-size: 12px; margin-top: auto;">No active friend session. Use Discover tab to connect profiles.</div>
                     </div>
 
                     <div class="chat-input-wrapper">
-                        <input type="text" id="chatInput" placeholder="Select peer connection first..." disabled>
-                        <button id="sendChatBtn" class="action" disabled style="flex: 0 0 90px; min-width: 90px;">Send</button>
+                        <input type="text" id="chatInput" placeholder="Choose a contact channel..." disabled>
+                        <button id="sendChatBtn" class="action" disabled style="padding: 14px 25px;">Send</button>
                     </div>
                 </div>
 
                 <div id="cameraViewPanel" class="view-panel hidden">
                     <div class="view-header">
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <h3 style="margin:0;">Camera Center</h3>
-                        </div>
+                        <h3 style="margin:0;">Camera Center Sandbox</h3>
                         <button id="closeCameraBtn" class="icon-btn">
                             <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                         </button>
@@ -565,7 +550,7 @@
                         <div class="camera-viewport">
                             <video id="selfPreviewVideo" autoplay playsinline muted></video>
                         </div>
-                        <p style="font-size:13px; color:#aaa; text-align:center;">Local capture module sandbox. Muted by configuration parameters.</p>
+                        <p style="font-size:13px; color:#aaa;">Local device verification sandbox pipeline.</p>
                     </div>
                 </div>
 
@@ -574,21 +559,21 @@
                         <video id="callRemoteVideo" class="remote-video-fullscreen" autoplay playsinline></video>
                         <video id="callLocalVideo" class="local-video-pip" autoplay playsinline muted></video>
 
-                        <div class="call-ui-layer" style="margin-top:40px;">
+                        <div class="call-ui-layer" style="margin-top:20px;">
                             <div class="call-meta-profile">
                                 <img id="callActiveAvatar" src="https://ui-avatars.com/api/?name=Peer">
-                                <h2 id="callActiveName" style="margin:0; text-shadow:0 4px 10px rgba(0,0,0,0.8);">Peer Line</h2>
-                                <p id="callDuration" style="font-size:14px; opacity:0.8; margin:5px 0 0 0;">Active WebRTC Core Stream</p>
+                                <h2 id="callActiveName" style="margin:0; text-shadow:0 4px 8px rgba(0,0,0,0.8);">Connecting Node</h2>
+                                <p id="callTypeLabel" style="font-size:14px; opacity:0.8; margin:5px 0 0 0;">Automatic WebRTC Handshake...</p>
                             </div>
                         </div>
 
-                        <div class="call-ui-layer" style="margin-bottom:20px;">
+                        <div class="call-ui-layer" style="margin-bottom:10px;">
                             <div class="call-controls">
-                                <button id="toggleCallMuteBtn" class="icon-btn" style="background:rgba(255,255,255,0.2); color:#fff;">
-                                    <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+                                <button id="acceptCallBtn" class="icon-btn hidden" style="background:var(--success); color:white; width:50px; height:50px;">
+                                    <svg viewBox="0 0 24 24" style="fill:white;"><path d="M20 15.5c-1.25 0-2.45-.2-3.57-.57-.35-.11-.74-.03-1.02.24l-2.2 2.2c-2.83-1.44-5.14-3.76-6.59-6.59l2.2-2.2c.28-.28.36-.67.25-1.02C8.7 6.45 8.5 5.25 8.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1z"/></svg>
                                 </button>
-                                <button id="endCallBtn" class="icon-btn" style="background:var(--danger); color:#fff; width:54px; height:54px;">
-                                    <svg viewBox="0 0 24 24"><path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08c-.18-.17-.29-.42-.29-.7 0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/></svg>
+                                <button id="endCallBtn" class="icon-btn" style="background:var(--danger); color:white; width:50px; height:50px;">
+                                    <svg viewBox="0 0 24 24" style="fill:white;"><path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08c-.18-.17-.29-.42-.29-.7 0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/></svg>
                                 </button>
                             </div>
                         </div>
@@ -601,75 +586,68 @@
     </div>
 
     <script>
-        // --- SECURE CONFIGURATION ---
+        // --- SECURE STORAGE CONFIGURATION ---
         const MASTER_API_KEY = "$2a$10$XDKbJJajqyGNm9ZsoEkXueGbfMG7OteKGLwJJ7BtI8mv1/PEJTLta";
         const USERS_BIN_ID = "6a17e111ddf5aa59f76eb87b";
 
-        // DOM Elements - Navigation Structure
+        // Navigation Components & Directory Tabs
         const authScreen = document.getElementById('authScreen');
         const appScreen = document.getElementById('appScreen');
         const userListSpace = document.getElementById('userListSpace');
         const userSearchInput = document.getElementById('userSearchInput');
-        const roomConfigOverlay = document.getElementById('roomConfigOverlay');
+        const tabChats = document.getElementById('tabChats');
+        const tabDiscover = document.getElementById('tabDiscover');
         
-        // Navigation Intercepters
-        const triggerDashboardBtn = document.getElementById('triggerDashboardBtn');
-        const closeConfigOverlayBtn = document.getElementById('closeConfigOverlayBtn');
-        const toCameraBtn = document.getElementById('toCameraBtn');
-        const closeCameraBtn = document.getElementById('closeCameraBtn');
-        const voiceCallBtn = document.getElementById('voiceCallBtn');
-        const videoCallBtn = document.getElementById('videoCallBtn');
-        const endCallBtn = document.getElementById('endCallBtn');
+        let currentTab = "chats"; // "chats" or "discover"
 
-        // View Panels
+        // Panel Switch Handles
         const chatViewPanel = document.getElementById('chatViewPanel');
         const cameraViewPanel = document.getElementById('cameraViewPanel');
         const callStageViewPanel = document.getElementById('callStageViewPanel');
 
-        // DOM Elements - Credentials & Accounts
+        const toCameraBtn = document.getElementById('toCameraBtn');
+        const closeCameraBtn = document.getElementById('closeCameraBtn');
+        const voiceCallBtn = document.getElementById('voiceCallBtn');
+        const videoCallBtn = document.getElementById('videoCallBtn');
+        const acceptCallBtn = document.getElementById('acceptCallBtn');
+        const endCallBtn = document.getElementById('endCallBtn');
+
+        // Dynamic State Profiles
         const usernameInput = document.getElementById('username');
         const passwordInput = document.getElementById('password');
         const pfpUrlInput = document.getElementById('pfpUrl');
         const authStatus = document.getElementById('authStatus');
         const loggedInUserText = document.getElementById('loggedInUser');
         const userPfpImg = document.getElementById('userPfp');
-        let currentUserAvatar = "";
+        
         let currentUser = "";
+        let currentUserAvatar = "";
         let globalUsersCache = [];
+        let selectedFriendUser = null;
+        let localStream = null;
+        let pc = null;
+        let trackingPollId = null;
 
-        // DOM Elements - Connection Orchestrator
-        const initSystemBtn = document.getElementById('initSystemBtn');
-        const createCallBtn = document.getElementById('createCallBtn');
-        const joinCallBtn = document.getElementById('joinCallBtn');
-        const checkAnswerBtn = document.getElementById('checkAnswerBtn');
-        const callBinIdInput = document.getElementById('callBinId');
-        const callStatus = document.getElementById('callStatus');
-        const channelConnectionIndicator = document.getElementById('channelConnectionIndicator');
-
-        // DOM Elements - Conversational Thread
+        // Messaging Channels
         const chatBox = document.getElementById('chatBox');
         const chatInput = document.getElementById('chatInput');
         const sendChatBtn = document.getElementById('sendChatBtn');
         const activeTargetName = document.getElementById('activeTargetName');
         const activeTargetAvatar = document.getElementById('activeTargetAvatar');
+        const channelConnectionIndicator = document.getElementById('channelConnectionIndicator');
 
-        // DOM Video Pipeline Feeds
+        // Stage Media Channels
         const selfPreviewVideo = document.getElementById('selfPreviewVideo');
         const callLocalVideo = document.getElementById('callLocalVideo');
         const callRemoteVideo = document.getElementById('callRemoteVideo');
         const callActiveAvatar = document.getElementById('callActiveAvatar');
         const callActiveName = document.getElementById('callActiveName');
+        const callTypeLabel = document.getElementById('callTypeLabel');
 
-        // WebRTC Architecture Engine Elements
         const servers = { iceServers: [{ urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }] };
-        let pc = new RTCPeerConnection(servers);
-        let localStream;
-        let dataChannel;
-        let activePeerIdentity = null;
 
-        // --- THEME ENGINE MANAGEMENT ---
+        // --- VISUAL THEME ENGINE ---
         const themeSelect = document.getElementById('themeSelect');
-        
         function applyTheme(theme) {
             document.body.setAttribute('data-theme', theme);
             localStorage.setItem('lunarTheme', theme);
@@ -678,28 +656,6 @@
         themeSelect.onchange = (e) => applyTheme(e.target.value);
 
         // --- SUBPANEL ROUTING SWITCHES ---
-        triggerDashboardBtn.onclick = () => roomConfigOverlay.classList.remove('hidden');
-        closeConfigOverlayBtn.onclick = () => roomConfigOverlay.classList.add('hidden');
-        
-        toCameraBtn.onclick = async () => {
-            switchView(cameraViewPanel);
-            try {
-                if(!localStream) {
-                    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                }
-                selfPreviewVideo.srcObject = localStream;
-            } catch(e) {
-                alert("Camera access configuration failure.");
-            }
-        };
-
-        closeCameraBtn.onclick = () => {
-            switchView(chatViewPanel);
-            if(selfPreviewVideo.srcObject && !callStageViewPanel.classList.contains('active')) {
-                // Keep tracks if active call pipeline requires it, else freeze layout
-            }
-        };
-
         function switchView(targetPanel) {
             [chatViewPanel, cameraViewPanel, callStageViewPanel].forEach(panel => {
                 panel.classList.add('hidden');
@@ -709,61 +665,154 @@
             targetPanel.classList.add('active');
         }
 
-        // --- USER AND FRIEND INDEX COMPONENT ---
-        async function loadSidebarDirectories() {
+        toCameraBtn.onclick = async () => {
+            switchView(cameraViewPanel);
             try {
-                globalUsersCache = await fetchUsers();
-                renderUserList(globalUsersCache);
-            } catch(e) {
-                console.error("Sidebar loading error:", e);
-            }
+                if(!localStream) {
+                    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                }
+                selfPreviewVideo.srcObject = localStream;
+            } catch(e) { alert("Camera system parameter lockout."); }
+        };
+
+        closeCameraBtn.onclick = () => {
+            switchView(chatViewPanel);
+        };
+
+        // --- RECONSTRUCTED DATA PERSISTENCE LAYER ---
+        async function fetchBinRecords() {
+            const response = await fetch(`https://api.jsonbin.io/v3/b/${USERS_BIN_ID}/latest`, {
+                headers: { 'X-Master-Key': MASTER_API_KEY }
+            });
+            if (!response.ok) throw new Error("Sync failure interrogating central node.");
+            return (await response.json()).record.users || [];
         }
 
-        function renderUserList(users) {
-            userListSpace.innerHTML = "";
-            const filtered = users.filter(u => u.username !== currentUser);
-            
-            if(filtered.length === 0) {
-                userListSpace.innerHTML = `<div style="text-align:center; font-size:12px; opacity:0.5; margin-top:20px;">No directory profiles found</div>`;
-                return;
-            }
-
-            filtered.forEach(user => {
-                const item = document.createElement('div');
-                item.className = 'user-item';
-                item.innerHTML = `
-                    <div class="user-item-info">
-                        <img src="${user.avatar}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;" onerror="this.src='https://ui-avatars.com/api/?name=${user.username}'">
-                        <div class="user-item-name">${user.username}</div>
-                    </div>
-                    <div style="width:8px; height:8px; border-radius:50%; background:var(--success);"></div>
-                `;
-                item.onclick = () => selectActiveUserChannel(user);
-                userListSpace.appendChild(item);
+        async function updateBinRecords(updatedUsersArray) {
+            await fetch(`https://api.jsonbin.io/v3/b/${USERS_BIN_ID}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_API_KEY },
+                body: JSON.stringify({ users: updatedUsersArray })
             });
         }
 
-        userSearchInput.oninput = (e) => {
-            const query = e.target.value.toLowerCase().trim();
-            const matching = globalUsersCache.filter(u => u.username.toLowerCase().includes(query));
-            renderUserList(matching);
+        // --- DIRECTORY ENGINE (WHATSAPP TAB CONTROLS) ---
+        tabChats.onclick = () => {
+            currentTab = "chats";
+            tabChats.classList.add('active');
+            tabDiscover.classList.remove('active');
+            renderDirectoryList();
         };
 
-        function selectActiveUserChannel(user) {
-            activePeerIdentity = user;
-            document.querySelectorAll('.user-item').forEach(el => el.classList.remove('active'));
-            
-            activeTargetName.innerText = user.username;
-            activeTargetAvatar.src = user.avatar;
-            
-            callActiveName.innerText = user.username;
-            callActiveAvatar.src = user.avatar;
+        tabDiscover.onclick = () => {
+            currentTab = "discover";
+            tabDiscover.classList.add('active');
+            tabChats.classList.remove('active');
+            renderDirectoryList();
+        };
 
-            roomConfigOverlay.classList.remove('hidden');
-            setStatus(callStatus, `Ready to sync link room configurations with ${user.username}.`, "primary");
+        userSearchInput.oninput = () => renderDirectoryList();
+
+        function renderDirectoryList() {
+            userListSpace.innerHTML = "";
+            const searchQuery = userSearchInput.value.toLowerCase().trim();
+            const selfRecord = globalUsersCache.find(u => u.username === currentUser);
+            if (!selfRecord) return;
+
+            const myFriendsList = selfRecord.friends || [];
+
+            let filteredUsers = globalUsersCache.filter(u => u.username !== currentUser);
+            if (searchQuery) {
+                filteredUsers = filteredUsers.filter(u => u.username.toLowerCase().includes(searchQuery));
+            }
+
+            if (currentTab === "chats") {
+                // Only show users who are in your friend list
+                const chatFriends = filteredUsers.filter(u => myFriendsList.includes(u.username));
+                if (chatFriends.length === 0) {
+                    userListSpace.innerHTML = `<div style="text-align:center; font-size:12px; opacity:0.5; margin-top:25px;">No active conversations. Find friends in the Discover tab!</div>`;
+                    return;
+                }
+                chatFriends.forEach(user => {
+                    const item = document.createElement('div');
+                    item.className = `user-item ${selectedFriendUser && selectedFriendUser.username === user.username ? 'active' : ''}`;
+                    item.innerHTML = `
+                        <div class="user-item-info">
+                            <img src="${user.avatar}" style="width:38px; height:38px; border-radius:50%; object-fit:cover;" onerror="this.src='https://ui-avatars.com/api/?name=${user.username}'">
+                            <div>
+                                <div class="user-item-name">${user.username}</div>
+                                <div style="font-size:11px; color:var(--success);">Connected Friend</div>
+                            </div>
+                        </div>
+                    `;
+                    item.onclick = () => establishConversationTarget(user);
+                    userListSpace.appendChild(item);
+                });
+            } else {
+                // Discover Tab: Show all platform users with an actionable Add button
+                if (filteredUsers.length === 0) {
+                    userListSpace.innerHTML = `<div style="text-align:center; font-size:12px; opacity:0.5; margin-top:25px;">No matching directory entries found.</div>`;
+                    return;
+                }
+                filteredUsers.forEach(user => {
+                    const isFriend = myFriendsList.includes(user.username);
+                    const item = document.createElement('div');
+                    item.className = 'user-item';
+                    item.style.cursor = "default";
+                    item.innerHTML = `
+                        <div class="user-item-info">
+                            <img src="${user.avatar}" style="width:38px; height:38px; border-radius:50%; object-fit:cover;" onerror="this.src='https://ui-avatars.com/api/?name=${user.username}'">
+                            <div class="user-item-name">${user.username}</div>
+                        </div>
+                        ${isFriend ? `<span style="font-size:11px; color:var(--success); font-weight:bold;">Friend</span>` 
+                                   : `<button class="add-friend-btn" onclick="executeFriendshipBind(event, '${user.username}')">Add Friend</button>`}
+                    `;
+                    userListSpace.appendChild(item);
+                });
+            }
         }
 
-        // --- IDENTITY AUTH PIPELINE ---
+        async function executeFriendshipBind(event, targetName) {
+            event.stopPropagation();
+            try {
+                let users = await fetchBinRecords();
+                let selfIdx = users.findIndex(u => u.username === currentUser);
+                let targetIdx = users.findIndex(u => u.username === targetName);
+
+                if (selfIdx !== -1 && targetIdx !== -1) {
+                    if (!users[selfIdx].friends) users[selfIdx].friends = [];
+                    if (!users[targetIdx].friends) users[targetIdx].friends = [];
+
+                    if (!users[selfIdx].friends.includes(targetName)) users[selfIdx].friends.push(targetName);
+                    if (!users[targetIdx].friends.includes(currentUser)) users[targetIdx].friends.push(currentUser);
+
+                    await updateBinRecords(users);
+                    globalUsersCache = users;
+                    renderDirectoryList();
+                }
+            } catch(e) { alert("Friendship structural link failure."); }
+        }
+
+        function establishConversationTarget(user) {
+            selectedFriendUser = user;
+            renderDirectoryList();
+
+            activeTargetName.innerText = user.username;
+            activeTargetAvatar.src = user.avatar;
+            channelConnectionIndicator.innerText = "Secure Direct Node Tunnel";
+            channelConnectionIndicator.style.color = "var(--success)";
+
+            chatInput.disabled = false;
+            sendChatBtn.disabled = false;
+            voiceCallBtn.disabled = false;
+            videoCallBtn.disabled = false;
+            chatInput.placeholder = `Message ${user.username}...`;
+
+            // Clear chatBox UI for selected thread view layout
+            chatBox.innerHTML = `<div style="text-align: center; color: #666; font-size: 12px; margin-top: auto;">Direct history established with ${user.username}.</div>`;
+        }
+
+        // --- ACCOUNT AUTH PIPELINES ---
         function setStatus(element, msg, color) {
             element.innerText = msg;
             element.style.color = `var(--${color})`;
@@ -777,7 +826,9 @@
             authScreen.classList.add('hidden');
             appScreen.classList.remove('hidden');
             localStorage.setItem('lunarSession', JSON.stringify({ user, avatar }));
-            loadSidebarDirectories();
+            
+            // Launch Automated Workgroup Polling Engine Loop
+            startPlatformPollingLoop();
         }
 
         document.getElementById('logoutBtn').onclick = () => {
@@ -785,60 +836,106 @@
             location.reload();
         };
 
-        async function fetchUsers() {
-            const response = await fetch(`https://api.jsonbin.io/v3/b/${USERS_BIN_ID}/latest`, {
-                headers: { 'X-Master-Key': MASTER_API_KEY }
-            });
-            if (!response.ok) throw new Error("Database network structural rejection.");
-            return (await response.json()).record.users || [];
-        }
-
         document.getElementById('registerBtn').onclick = async () => {
             const user = usernameInput.value.trim();
             const pass = passwordInput.value.trim();
             const pfp = pfpUrlInput.value.trim() || `https://ui-avatars.com/api/?name=${user}`;
             
-            if (!user || !pass) return setStatus(authStatus, "Required fields missing.", "danger");
-            setStatus(authStatus, "Registering profile...", "primary");
+            if (!user || !pass) return setStatus(authStatus, "Required parameters absent.", "danger");
+            setStatus(authStatus, "Generating structural profile...", "primary");
             try {
-                let users = await fetchUsers();
-                if (users.some(u => u.username.toLowerCase() === user.toLowerCase())) return setStatus(authStatus, "Identifier occupied.", "danger");
-                users.push({ username: user, password: pass, avatar: pfp });
-                await fetch(`https://api.jsonbin.io/v3/b/${USERS_BIN_ID}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_API_KEY },
-                    body: JSON.stringify({ users: users })
-                });
-                setStatus(authStatus, "Success. Access credentials authorized.", "success");
+                let users = await fetchBinRecords();
+                if (users.some(u => u.username.toLowerCase() === user.toLowerCase())) {
+                    return setStatus(authStatus, "Identifier already mapped.", "danger");
+                }
+                users.push({ username: user, password: pass, avatar: pfp, friends: [], mailbox: [] });
+                await updateBinRecords(users);
+                setStatus(authStatus, "Registration authorized! Please Login.", "success");
             } catch (err) { setStatus(authStatus, err.message, "danger"); }
         };
 
         document.getElementById('loginBtn').onclick = async () => {
             const user = usernameInput.value.trim();
             const pass = passwordInput.value.trim();
-            if (!user || !pass) return setStatus(authStatus, "Missing identification values.", "danger");
-            setStatus(authStatus, "Verifying credentials...", "primary");
+            if (!user || !pass) return setStatus(authStatus, "Missing credential records.", "danger");
+            setStatus(authStatus, "Authenticating sequence...", "primary");
             try {
-                let users = await fetchUsers();
-                const foundUser = users.find(u => u.username === user && u.password === pass);
-                if (foundUser) {
-                    handleLoginSuccess(foundUser.username, foundUser.avatar);
+                let users = await fetchBinRecords();
+                const matched = users.find(u => u.username === user && u.password === pass);
+                if (matched) {
+                    handleLoginSuccess(matched.username, matched.avatar);
                 } else {
-                    setStatus(authStatus, "Validation rejection pattern matched.", "danger");
+                    setStatus(authStatus, "Authentication vector rejection.", "danger");
                 }
             } catch (err) { setStatus(authStatus, err.message, "danger"); }
         };
 
-        // --- CONVERSATIONAL ENGINE IMPLEMENTATION ---
+        // --- CENTRAL BACKGROUND AUTOMATION LOOP (SIGNALS & MESSAGES) ---
+        function startPlatformPollingLoop() {
+            if (trackingPollId) clearInterval(trackingPollId);
+            
+            // Fast execution on startup followed by 3.5s automated polling ticks
+            pollPlatformSyncAction();
+            trackingPollId = setInterval(pollPlatformSyncAction, 3500);
+        }
+
+        async function pollPlatformSyncAction() {
+            try {
+                const users = await fetchBinRecords();
+                globalUsersCache = users;
+                renderDirectoryList();
+
+                let selfRecord = users.find(u => u.username === currentUser);
+                if (!selfRecord || !selfRecord.mailbox || selfRecord.mailbox.length === 0) return;
+
+                let incomingMessages = [];
+                let structureAltered = false;
+
+                // Process mailbox packets matching specific system action filters
+                selfRecord.mailbox.forEach(packet => {
+                    if (packet.type === "text") {
+                        if (selectedFriendUser && packet.from === selectedFriendUser.username) {
+                            appendMessage(packet.from, packet.text, packet.avatar, false);
+                        }
+                        structureAltered = true;
+                    } 
+                    else if (packet.type === "offer") {
+                        // Launch Immersive Call Stage for incoming invitation offers
+                        handleIncomingCallOffer(packet);
+                        structureAltered = true;
+                    }
+                    else if (packet.type === "answer") {
+                        // Finalize call routing pipelines
+                        handleIncomingCallAnswer(packet);
+                        structureAltered = true;
+                    }
+                });
+
+                // Flush processed structural nodes immediately from central mailbox index
+                if (structureAltered) {
+                    let freshUsers = await fetchBinRecords();
+                    let targetSelf = freshUsers.find(u => u.username === currentUser);
+                    if (targetSelf) {
+                        targetSelf.mailbox = targetSelf.mailbox.filter(p => p.type !== "text" && p.type !== "offer" && p.type !== "answer");
+                        await updateBinRecords(freshUsers);
+                    }
+                }
+
+            } catch (e) { console.error("Sync polling lifecycle skip exception:", e); }
+        }
+
+        // --- AUTOMATED CHAT MESSAGING SUBSYSTEM ---
         function appendMessage(sender, text, avatar, isSelf) {
-            if(chatBox.innerHTML.includes("history will appear here") || chatBox.innerHTML.includes("Open settings")) chatBox.innerHTML = ""; 
+            if (chatBox.innerHTML.includes("No active friend session") || chatBox.innerHTML.includes("Direct history established")) {
+                chatBox.innerHTML = "";
+            }
             const msgDiv = document.createElement('div');
             const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             msgDiv.className = `chat-msg ${isSelf ? 'self' : 'other'}`;
             msgDiv.innerHTML = `
                 <div class="msg-header">
-                    <img src="${avatar}" style="width:18px;height:18px;border-radius:50%; object-fit:cover;">
-                    <span class="sender" style="font-weight:bold; font-size:11px;">${sender}</span>
+                    <img src="${avatar}" style="width:18px; height:18px; border-radius:50%; object-fit:cover;">
+                    <span class="sender" style="font-weight:bold; font-size:11px; margin-left:5px;">${sender}</span>
                 </div>
                 <div style="word-break: break-word; margin-top:4px;">${text}</div>
                 <div class="timestamp">${time}</div>`;
@@ -846,157 +943,150 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        function setupDataChannel(channel) {
-            channel.onopen = () => {
-                chatInput.disabled = false;
-                sendChatBtn.disabled = false;
-                voiceCallBtn.disabled = false;
-                videoCallBtn.disabled = false;
-                chatInput.placeholder = "Compose data message packet...";
-                setStatus(callStatus, "Channel link stable.", "success");
-                channelConnectionIndicator.innerText = "Connected";
-                channelConnectionIndicator.style.color = "var(--success)";
-                roomConfigOverlay.classList.add('hidden');
-            };
-            channel.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                appendMessage(data.user, data.text, data.avatar, false);
-            };
-            channel.onclose = () => {
-                channelConnectionIndicator.innerText = "Disconnected";
-                channelConnectionIndicator.style.color = "var(--danger)";
-            };
-        }
-
-        sendChatBtn.onclick = () => {
+        sendChatBtn.onclick = async () => {
             const text = chatInput.value.trim();
-            if (!text || !dataChannel || dataChannel.readyState !== "open") return;
-            const msgObj = { user: currentUser, text: text, avatar: currentUserAvatar };
-            dataChannel.send(JSON.stringify(msgObj));
+            if (!text || !selectedFriendUser) return;
+
             appendMessage(currentUser, text, currentUserAvatar, true);
             chatInput.value = "";
-        };
 
+            try {
+                let users = await fetchBinRecords();
+                let targetPeer = users.find(u => u.username === selectedFriendUser.username);
+                if (targetPeer) {
+                    if (!targetPeer.mailbox) targetPeer.mailbox = [];
+                    targetPeer.mailbox.push({
+                        type: "text",
+                        from: currentUser,
+                        avatar: currentUserAvatar,
+                        text: text,
+                        time: Date.now()
+                    });
+                    await updateBinRecords(users);
+                }
+            } catch (e) { console.error("Message tracking write abort."); }
+        };
         chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendChatBtn.click(); });
 
-        // --- WEBRTC SIGNALING INTERACTION MANAGEMENT ---
-        function addRemoteVideoStream(stream) {
-            callRemoteVideo.srcObject = stream;
+
+        // --- AUTOMATED WEBRTC HANDSHAKE ROUTING (NO Room IDs REQUIRED) ---
+        async function prepMediaEngineTracks() {
+            if (!localStream) {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            }
+            callLocalVideo.srcObject = localStream;
+            
+            if (pc) { try { pc.close(); } catch(e){} }
+            pc = new RTCPeerConnection(servers);
+
+            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+            pc.ontrack = (e) => { callRemoteVideo.srcObject = e.streams[0]; };
         }
 
-        initSystemBtn.onclick = async () => {
-            try {
-                setStatus(callStatus, "Acquiring structural capture access...", "primary");
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                selfPreviewVideo.srcObject = localStream;
-                callLocalVideo.srcObject = localStream;
-                
-                localStream.getTracks().forEach(track => {
-                    track.enabled = true; 
-                    pc.addTrack(track, localStream);
+        // Action Trigger 1: Triggering standard Outbound Call Offers
+        async function initiateOutboundCallTunnel(callType) {
+            if (!selectedFriendUser) return;
+            callActiveName.innerText = selectedFriendUser.username;
+            callActiveAvatar.src = selectedFriendUser.avatar;
+            callTypeLabel.innerText = `${callType.toUpperCase()} CALL - Ringing...`;
+            acceptCallBtn.classList.add('hidden');
+            
+            if (callType === 'voice') callRemoteVideo.classList.add('hidden');
+            else callRemoteVideo.classList.remove('hidden');
+
+            switchView(callStageViewPanel);
+
+            await prepMediaEngineTracks();
+
+            // Create WebRTC SDP offer token
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+
+            // Forward connection metadata directly into remote friend target profile mail stack
+            let users = await fetchBinRecords();
+            let targetPeer = users.find(u => u.username === selectedFriendUser.username);
+            if (targetPeer) {
+                if (!targetPeer.mailbox) targetPeer.mailbox = [];
+                targetPeer.mailbox.push({
+                    type: "offer",
+                    callMode: callType,
+                    from: currentUser,
+                    sdp: offer.sdp
                 });
+                await updateBinRecords(users);
+            }
+        }
 
-                pc.ontrack = event => addRemoteVideoStream(event.streams[0]);
-                pc.ondatachannel = event => setupDataChannel(event.channel); 
+        voiceCallBtn.onclick = () => initiateOutboundCallTunnel('voice');
+        videoCallBtn.onclick = () => initiateOutboundCallTunnel('video');
 
-                setStatus(callStatus, "Media grid online. Provision operational links.", "success");
-                initSystemBtn.disabled = true;
-                createCallBtn.disabled = false;
-                joinCallBtn.disabled = false;
-            } catch (error) {
-                setStatus(callStatus, "Access parameters locked or hardware absent.", "danger");
+        // Action Trigger 2: Parsing Inbound System Call Invitation Offers
+        let dynamicTrackedOfferPacket = null;
+        async function handleIncomingCallOffer(packet) {
+            dynamicTrackedOfferPacket = packet;
+            
+            callActiveName.innerText = packet.from;
+            callTypeLabel.innerText = `INCOMING ${packet.callMode.toUpperCase()} CALL...`;
+            acceptCallBtn.classList.remove('hidden');
+
+            if (packet.callMode === 'voice') callRemoteVideo.classList.add('hidden');
+            else callRemoteVideo.classList.remove('hidden');
+
+            // Find match profile context inside active user arrays
+            let trackingPeerRecord = globalUsersCache.find(u => u.username === packet.from);
+            if (trackingPeerRecord) callActiveAvatar.src = trackingPeerRecord.avatar;
+
+            switchView(callStageViewPanel);
+        }
+
+        acceptCallBtn.onclick = async () => {
+            if (!dynamicTrackedOfferPacket) return;
+            acceptCallBtn.classList.add('hidden');
+            callTypeLabel.innerText = "Connecting Node Stream...";
+
+            await prepMediaEngineTracks();
+
+            // Direct WebRTC Handshake binding mapping configuration
+            await pc.setRemoteDescription(new RTCSessionDescription({
+                type: 'offer',
+                sdp: dynamicTrackedOfferPacket.sdp
+            }));
+
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+
+            // Forward structural answer token straight back to caller mail slot
+            let users = await fetchBinRecords();
+            let masterCaller = users.find(u => u.username === dynamicTrackedOfferPacket.from);
+            if (masterCaller) {
+                if (!masterCaller.mailbox) masterCaller.mailbox = [];
+                masterCaller.mailbox.push({
+                    type: "answer",
+                    from: currentUser,
+                    sdp: answer.sdp
+                });
+                await updateBinRecords(users);
             }
         };
 
-        createCallBtn.onclick = async () => {
-            dataChannel = pc.createDataChannel("chat");
-            setupDataChannel(dataChannel);
-
-            const offer = await pc.createOffer();
-            await pc.setLocalDescription(offer);
-            const callData = { offer: { type: offer.type, sdp: offer.sdp } };
-            setStatus(callStatus, "Allocating room buffer...", "primary");
-
-            pc.onicegatheringstatechange = async () => {
-                if (pc.iceGatheringState === 'complete') {
-                    callData.offer.sdp = pc.localDescription.sdp;
-                    try {
-                        const response = await fetch('https://api.jsonbin.io/v3/b', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_API_KEY },
-                            body: JSON.stringify(callData)
-                        });
-                        const data = await response.json();
-                        callBinIdInput.value = data.metadata.id;
-                        setStatus(callStatus, `Allocated: ${data.metadata.id}. Link token up.`, "success");
-                        checkAnswerBtn.disabled = false;
-                        createCallBtn.disabled = true;
-                        joinCallBtn.disabled = true;
-                    } catch (err) { setStatus(callStatus, "Endpoint sync failure.", "danger"); }
-                }
-            };
-        };
-
-        joinCallBtn.onclick = async () => {
-            const sessionBinId = callBinIdInput.value.trim();
-            if (!sessionBinId) return alert("Structural mapping identifier missing.");
-            setStatus(callStatus, "Parsing node parameters...", "primary");
-
-            try {
-                let res = await fetch(`https://api.jsonbin.io/v3/b/${sessionBinId}`, { headers: { 'X-Master-Key': MASTER_API_KEY } });
-                let data = await res.json();
-                
-                await pc.setRemoteDescription(new RTCSessionDescription(data.record.offer));
-                const answer = await pc.createAnswer();
-                await pc.setLocalDescription(answer);
-
-                const updatedData = { ...data.record, answer: { type: answer.type, sdp: answer.sdp } };
-
-                pc.onicegatheringstatechange = async () => {
-                    if (pc.iceGatheringState === 'complete') {
-                        updatedData.answer.sdp = pc.localDescription.sdp;
-                        await fetch(`https://api.jsonbin.io/v3/b/${sessionBinId}`, {
-                            method: 'PUT',
-                            headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_API_KEY },
-                            body: JSON.stringify(updatedData)
-                        });
-                        setStatus(callStatus, "Handshake executed. Linking matrix structures...", "success");
-                        createCallBtn.disabled = true;
-                        joinCallBtn.disabled = true;
-                    }
-                };
-            } catch (err) { setStatus(callStatus, "Transaction fault processing remote map.", "danger"); }
-        };
-
-        checkAnswerBtn.onclick = async () => {
-            const sessionBinId = callBinIdInput.value;
-            setStatus(callStatus, "Interrogating state index...", "primary");
-            try {
-                let res = await fetch(`https://api.jsonbin.io/v3/b/${sessionBinId}`, { headers: { 'X-Master-Key': MASTER_API_KEY } });
-                let data = await res.json();
-                if (!data.record.answer) return setStatus(callStatus, "Remote node quiescent. Re-interrogate.", "danger");
-                await pc.setRemoteDescription(new RTCSessionDescription(data.record.answer));
-                setStatus(callStatus, "Matrix synchronized.", "success");
-                checkAnswerBtn.disabled = true;
-            } catch (err) { setStatus(callStatus, "Verification failure.", "danger"); }
-        };
-
-        // --- ACTION HANDLERS FOR VOICE / VIDEO SCREENS ---
-        voiceCallBtn.onclick = () => {
-            switchView(callStageViewPanel);
-            callRemoteVideo.classList.add('hidden'); // Audio call hides master panel track view 
-        };
-
-        videoCallBtn.onclick = () => {
-            switchView(callStageViewPanel);
-            callRemoteVideo.classList.remove('hidden');
-        };
+        // Action Trigger 3: Final Call Pipeline Verification Answers
+        async function handleIncomingCallAnswer(packet) {
+            if (pc && pc.signalingState !== "stable") {
+                await pc.setRemoteDescription(new RTCSessionDescription({
+                    type: 'answer',
+                    sdp: packet.sdp
+                }));
+                callTypeLabel.innerText = "Call Grid Connected";
+            }
+        }
 
         endCallBtn.onclick = () => {
+            if (pc) { try { pc.close(); } catch(e){} pc = null; }
+            callRemoteVideo.srcObject = null;
             switchView(chatViewPanel);
         };
 
-        // --- INITIALIZATION ---
+        // --- PLATFORM INITIALIZATION ENTRYPOINT ---
         window.onload = () => {
             const savedTheme = localStorage.getItem('lunarTheme') || 'default';
             applyTheme(savedTheme);
