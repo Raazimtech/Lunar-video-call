@@ -3,10 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lunar Call</title>
+    <title>Lunar Call - Chat & Video</title>
     <style>
-        /* --- CLAYMORPHISM CSS STYLES --- */
+        /* --- CLAYMORPHISM & RESPONSIVE CSS STYLES --- */
         :root {
+            /* Default Theme: Warm Orange */
+            --bg-color: #2d2a28;
+            --clay-shadow: 8px 8px 16px #211f1d, -8px -8px 16px #393533;
+            --clay-inset: inset 6px 6px 12px #211f1d, inset -6px -6px 12px #393533;
+            --primary: #e67e22;
+            --success: #27ae60;
+            --danger: #c0392b;
+            --text-color: #ecf0f1;
+            --chat-bg: #252321;
+        }
+
+        [data-theme="sakura"] {
+            --bg-color: #fff0f3;
+            --clay-shadow: 8px 8px 16px #dec9ce, -8px -8px 16px #ffffff;
+            --clay-inset: inset 6px 6px 12px #dec9ce, inset -6px -6px 12px #ffffff;
+            --primary: #ffb7c5;
+            --success: #98fb98;
+            --danger: #ff6b6b;
+            --text-color: #5d2e46;
+            --chat-bg: #ffe4e9;
+        }
+
+        [data-theme="midnight"] {
             --bg-color: #2b2e33;
             --clay-shadow: 8px 8px 16px #222429, -8px -8px 16px #34383d;
             --clay-inset: inset 6px 6px 12px #222429, inset -6px -6px 12px #34383d;
@@ -14,6 +37,18 @@
             --success: #00ff88;
             --danger: #ff4a4a;
             --text-color: #e0e5ec;
+            --chat-bg: #26282d;
+        }
+
+        [data-theme="forest"] {
+            --bg-color: #2d3436;
+            --clay-shadow: 8px 8px 16px #23292a, -8px -8px 16px #373f42;
+            --clay-inset: inset 6px 6px 12px #23292a, inset -6px -6px 12px #373f42;
+            --primary: #55efc4;
+            --success: #00b894;
+            --danger: #fab1a0;
+            --text-color: #dfe6e9;
+            --chat-bg: #212628;
         }
 
         body {
@@ -24,20 +59,31 @@
             padding: 20px;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             min-height: 100vh;
             box-sizing: border-box;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             width: 100%;
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
+        
+        .theme-selector-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: -10px;
+        }
 
-        h1, h3 {
+        #themeSelect {
+            width: auto;
+            padding: 8px 15px;
+        }
+
+        h1, h2, h3 {
             text-align: center;
             margin-top: 0;
             color: var(--text-color);
@@ -58,9 +104,16 @@
             box-shadow: var(--clay-shadow);
         }
 
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            box-shadow: var(--clay-inset);
+        }
+
         .card {
             background: var(--bg-color);
-            padding: 30px;
+            padding: 25px;
             border-radius: 20px;
             display: flex;
             flex-direction: column;
@@ -68,9 +121,7 @@
             box-shadow: var(--clay-shadow);
         }
 
-        .hidden {
-            display: none !important;
-        }
+        .hidden { display: none !important; }
 
         input {
             padding: 15px;
@@ -82,6 +133,8 @@
             box-shadow: var(--clay-inset);
             outline: none;
             transition: all 0.2s ease;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         input:focus {
@@ -105,172 +158,291 @@
             font-weight: bold;
             font-size: 14px;
             flex: 1;
+            min-width: 140px;
             box-shadow: var(--clay-shadow);
             transition: all 0.2s ease;
         }
 
-        button.secondary {
-            color: var(--success);
+        button.secondary { color: var(--success); }
+        button.danger { color: var(--danger); }
+        button.action { background-color: var(--primary); color: white; box-shadow: 4px 4px 10px rgba(108, 138, 255, 0.4); }
+
+        button:active:not(:disabled) { box-shadow: var(--clay-inset); }
+        button:disabled { color: #666; cursor: not-allowed; box-shadow: 4px 4px 8px #222429, -4px -4px 8px #34383d; }
+
+        .status { font-weight: bold; text-align: center; margin: 10px 0 0 0; min-height: 20px; }
+
+        /* --- WORKSPACE LAYOUT (Responsive Split) --- */
+        .workspace {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .chat-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 300px;
+        }
+
+        .video-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 10px;
+            min-width: 250px;
+        }
+
+        /* --- CHAT INTERFACE --- */
+        .chat-box {
+            height: 400px;
+            background: var(--chat-bg);
+            border-radius: 15px;
+            padding: 15px;
+            overflow-y: auto;
+            box-shadow: var(--clay-inset);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .chat-msg {
+            padding: 10px 15px;
+            border-radius: 12px;
+            max-width: 80%;
+            font-size: 14px;
+            line-height: 1.4;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .chat-msg.self {
+            background-color: var(--primary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .chat-msg.other {
+            background-color: #3a3f47;
+            color: var(--text-color);
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+
+        .timestamp {
+            font-size: 10px;
+            opacity: 0.6;
+            margin-top: 4px;
+            text-align: right;
         }
         
-        button.danger {
-            color: var(--danger);
+        .chat-msg .msg-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        button:active:not(:disabled) {
-            box-shadow: var(--clay-inset);
+        .chat-msg .sender {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-bottom: 4px;
+            display: block;
         }
 
-        button:disabled {
-            color: #666;
-            cursor: not-allowed;
-            box-shadow: 4px 4px 8px #222429, -4px -4px 8px #34383d;
+        .chat-input-wrapper {
+            display: flex;
+            gap: 10px;
         }
 
-        .status {
-            font-weight: bold;
-            text-align: center;
-            margin: 10px 0 0 0;
-            min-height: 20px;
-        }
-
-        /* --- DYNAMIC MULTI-USER VIDEO GRID --- */
+        /* --- SMALL VIDEO GRID --- */
         .video-grid {
-            display: grid;
-            /* Auto-fit creates columns dynamically based on how many videos exist */
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 15px;
+            width: 100%;
         }
 
         .video-wrapper {
             background: var(--bg-color);
-            padding: 15px;
-            border-radius: 20px;
-            box-shadow: var(--clay-shadow);
+            padding: 8px;
+            border-radius: 15px;
+            box-shadow: var(--clay-inset);
             display: flex;
             flex-direction: column;
-            align-items: center;
+            max-width: 180px; /* Forces videos to be small */
         }
 
         video {
             width: 100%;
             background: #111;
-            border-radius: 12px;
+            border-radius: 10px;
             aspect-ratio: 16/9;
             object-fit: cover;
             box-shadow: var(--clay-inset);
         }
 
-        .user-tag {
-            text-align: center;
+        .vid-label {
+            font-size: 12px;
             color: #aaa;
-            font-size: 16px;
+            margin-bottom: 5px;
             font-weight: bold;
-            margin-bottom: 20px;
-            padding: 10px;
-            border-radius: 12px;
-            box-shadow: var(--clay-inset);
         }
 
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            width: 100%;
+        /* --- MOBILE RESPONSIVENESS --- */
+        @media (max-width: 768px) {
+            .workspace {
+                flex: none;
+            }
+            .chat-box {
+                height: 300px;
+            }
+            .video-wrapper {
+                max-width: 140px; /* Even smaller on mobile */
+            }
         }
-
     </style>
 </head>
 <body>
 
     <div class="container">
         
+        <div class="theme-selector-container">
+            <select id="themeSelect" class="card" style="padding: 10px; border-radius: 10px; cursor: pointer; color: var(--primary); font-weight: bold;">
+                <option value="default">🍊 Warm Orange</option>
+                <option value="sakura">🌸 Sakura Blossom</option>
+                <option value="midnight">🌙 Midnight Blue</option>
+                <option value="forest">🌲 Forest Deep</option>
+            </select>
+        </div>
+
         <div id="authScreen" class="card">
             <div class="logo-container">
-                <img src="logo.png" alt="Lunar Call Logo" class="logo" onerror="this.style.display='none'">
+                <img src="logo.png" alt="Lunar Call" class="logo" onerror="this.style.display='none'">
             </div>
             <h1>Lunar Call</h1>
-            <p style="text-align: center; margin-top: -10px; color: #888;">Claymorphism Edition</p>
             
-            <input type="text" id="username" placeholder="Username">
-            <input type="password" id="password" placeholder="Password">
+            <p style="font-size: 12px; text-align: center; color: #aaa; margin-top: -15px;">Secure Video & Chat Experience</p>
+            
+            <input type="text" id="username" placeholder="Username" autocomplete="off">
+            <input type="password" id="password" placeholder="Password" autocomplete="off">
+            <input type="text" id="pfpUrl" placeholder="Profile Picture URL (Optional)">
             
             <div class="buttons">
                 <button id="loginBtn">Login</button>
-                <button id="registerBtn" class="secondary">Register New Account</button>
+                <button id="registerBtn" class="secondary">Register</button>
             </div>
             <p id="authStatus" class="status"></p>
         </div>
 
-        <div id="callScreen" class="hidden container">
+        <div id="appScreen" class="hidden container">
+            
             <div class="card">
-                <div class="logo-container">
-                    <img src="logo.png" alt="Logo" class="logo" style="width: 50px; height: 50px;" onerror="this.style.display='none'">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                    <img id="userPfp" src="" class="user-avatar" onerror="this.src='https://ui-avatars.com/api/?name=User'">
+                    <h2 style="margin: 0;">Room Dashboard</h2>
+                    </div>
+                    <button id="logoutBtn" style="min-width: 80px; flex: none; padding: 8px;" class="danger">Logout</button>
                 </div>
-                <div class="user-tag">Agent: <span id="loggedInUser" style="color: var(--primary);"></span></div>
-                
-                <input type="text" id="callBinId" placeholder="Room ID (Leave blank to create a new room)">
+                <p style="text-align: center; margin-top: -10px; font-size: 14px; color: #aaa;">Logged in as <span id="loggedInUser" style="color: var(--primary); font-weight: bold;"></span></p>
+                <input type="text" id="callBinId" placeholder="Room ID (Leave blank to create new room)">
                 
                 <div class="buttons">
-                    <button id="startCamBtn">1. Initialize Devices</button>
+                    <button id="initSystemBtn">1. Initialize System</button>
                     <button id="createCallBtn" disabled>2. Create Room</button>
                     <button id="joinCallBtn" disabled>2. Join Room</button>
                     <button id="checkAnswerBtn" disabled>3. Sync Connection</button>
                 </div>
-                <p id="callStatus" class="status" style="color: var(--primary);">System Ready. Initialize devices.</p>
+                <p id="callStatus" class="status" style="color: var(--primary);">System Ready. Click Initialize.</p>
             </div>
 
-            <div class="video-grid" id="videoGrid">
-                <div class="video-wrapper" id="localVideoContainer" style="display: none;">
-                    <h3>You</h3>
-                    <video id="localVideo" autoplay playsinline muted></video>
-                    <div class="controls">
-                        <button id="toggleAudioBtn" class="secondary">Mute Mic</button>
-                        <button id="toggleVideoBtn" class="secondary">Hide Cam</button>
+            <div class="workspace">
+                <div class="card video-section">
+                    <h3>Video & Voice</h3>
+                    <p style="font-size: 12px; text-align: center; color: #aaa;">Feed is hidden by default for privacy.</p>
+                    <button id="toggleVideoUIBtn" class="action" disabled>Enable Video/Audio Feed</button>
+                    
+                    <div id="videoGrid" class="video-grid hidden">
+                        <div class="video-wrapper">
+                            <span class="vid-label">You</span>
+                            <video id="localVideo" autoplay playsinline muted></video>
+                        </div>
                     </div>
                 </div>
+
+                <div class="card chat-section">
+                    <h3>Room Chat</h3>
+                    <div id="chatBox" class="chat-box">
+                        <div style="text-align: center; color: #666; font-size: 12px; margin-top: auto;">Chat history will appear here once connected...</div>
+                    </div>
+                    <div class="chat-input-wrapper">
+                        <input type="text" id="chatInput" placeholder="Type a message..." disabled>
+                        <button id="sendChatBtn" disabled style="flex: 0 0 80px; min-width: 80px;">Send</button>
+                    </div>
                 </div>
+            </div>
         </div>
 
     </div>
 
     <script>
         // --- SECURE CONFIGURATION ---
-        // API Keys moved out of HTML to prevent user tampering.
         const MASTER_API_KEY = "$2a$10$XDKbJJajqyGNm9ZsoEkXueGbfMG7OteKGLwJJ7BtI8mv1/PEJTLta";
         const USERS_BIN_ID = "6a17e111ddf5aa59f76eb87b";
 
-        // DOM Elements
+        // DOM Elements - Auth
         const authScreen = document.getElementById('authScreen');
-        const callScreen = document.getElementById('callScreen');
+        const appScreen = document.getElementById('appScreen');
         const usernameInput = document.getElementById('username');
         const passwordInput = document.getElementById('password');
-        const loginBtn = document.getElementById('loginBtn');
-        const registerBtn = document.getElementById('registerBtn');
+        const pfpUrlInput = document.getElementById('pfpUrl');
         const authStatus = document.getElementById('authStatus');
         const loggedInUserText = document.getElementById('loggedInUser');
+        const userPfpImg = document.getElementById('userPfp');
+        let currentUserAvatar = "";
+        let currentUser = "";
 
-        const videoGrid = document.getElementById('videoGrid');
-        const localVideoContainer = document.getElementById('localVideoContainer');
-        const localVideo = document.getElementById('localVideo');
-        
-        const startCamBtn = document.getElementById('startCamBtn');
+        // DOM Elements - Setup
+        const initSystemBtn = document.getElementById('initSystemBtn');
         const createCallBtn = document.getElementById('createCallBtn');
         const joinCallBtn = document.getElementById('joinCallBtn');
         const checkAnswerBtn = document.getElementById('checkAnswerBtn');
         const callBinIdInput = document.getElementById('callBinId');
         const callStatus = document.getElementById('callStatus');
 
-        const toggleAudioBtn = document.getElementById('toggleAudioBtn');
-        const toggleVideoBtn = document.getElementById('toggleVideoBtn');
+        // DOM Elements - Chat
+        const chatBox = document.getElementById('chatBox');
+        const chatInput = document.getElementById('chatInput');
+        const sendChatBtn = document.getElementById('sendChatBtn');
+
+        // DOM Elements - Video
+        const toggleVideoUIBtn = document.getElementById('toggleVideoUIBtn');
+        const videoGrid = document.getElementById('videoGrid');
+        const localVideo = document.getElementById('localVideo');
 
         // WebRTC Config
         const servers = { iceServers: [{ urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }] };
         let pc = new RTCPeerConnection(servers);
         let localStream;
-        let isAudioMuted = false;
-        let isVideoHidden = false;
+        let dataChannel;
+        let isVideoActive = false;
+
+        // --- THEME LOGIC ---
+        const themeSelect = document.getElementById('themeSelect');
+        
+        function applyTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+            localStorage.setItem('lunarTheme', theme);
+            themeSelect.value = theme;
+        }
+
+        themeSelect.onchange = (e) => applyTheme(e.target.value);
 
         // --- AUTH LOGIC ---
         function setStatus(element, msg, color) {
@@ -278,133 +450,178 @@
             element.style.color = `var(--${color})`;
         }
 
+        function handleLoginSuccess(user, avatar) {
+            currentUser = user;
+            currentUserAvatar = avatar;
+            loggedInUserText.innerText = user;
+            userPfpImg.src = avatar;
+            authScreen.classList.add('hidden');
+            appScreen.classList.remove('hidden');
+            localStorage.setItem('lunarSession', JSON.stringify({ user, avatar }));
+        }
+
+        document.getElementById('logoutBtn').onclick = () => {
+            localStorage.removeItem('lunarSession');
+            location.reload();
+        };
+
         async function fetchUsers() {
             const response = await fetch(`https://api.jsonbin.io/v3/b/${USERS_BIN_ID}/latest`, {
                 headers: { 'X-Master-Key': MASTER_API_KEY }
             });
             if (!response.ok) throw new Error("Database connection failed.");
-            const data = await response.json();
-            return data.record.users || [];
+            return (await response.json()).record.users || [];
         }
 
-        registerBtn.onclick = async () => {
+        document.getElementById('registerBtn').onclick = async () => {
             const user = usernameInput.value.trim();
             const pass = passwordInput.value.trim();
-
+            const pfp = pfpUrlInput.value.trim() || `https://ui-avatars.com/api/?name=${user}`;
+            
             if (!user || !pass) return setStatus(authStatus, "Credentials required.", "danger");
-            setStatus(authStatus, "Communicating with server...", "primary");
-
+            setStatus(authStatus, "Registering...", "primary");
             try {
                 let users = await fetchUsers();
-                if (users.some(u => u.username.toLowerCase() === user.toLowerCase())) {
-                    return setStatus(authStatus, "Username taken.", "danger");
-                }
-
-                users.push({ username: user, password: pass });
-
+                if (users.some(u => u.username.toLowerCase() === user.toLowerCase())) return setStatus(authStatus, "Username taken.", "danger");
+                users.push({ username: user, password: pass, avatar: pfp });
                 await fetch(`https://api.jsonbin.io/v3/b/${USERS_BIN_ID}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_API_KEY },
                     body: JSON.stringify({ users: users })
                 });
-
                 setStatus(authStatus, "Registration successful. Please login.", "success");
-            } catch (err) {
-                setStatus(authStatus, err.message, "danger");
-            }
+            } catch (err) { setStatus(authStatus, err.message, "danger"); }
         };
 
-        loginBtn.onclick = async () => {
+        document.getElementById('loginBtn').onclick = async () => {
             const user = usernameInput.value.trim();
             const pass = passwordInput.value.trim();
-
             if (!user || !pass) return setStatus(authStatus, "Credentials required.", "danger");
             setStatus(authStatus, "Verifying...", "primary");
-
             try {
                 let users = await fetchUsers();
-                const validUser = users.find(u => u.username === user && u.password === pass);
-
-                if (validUser) {
-                    authScreen.classList.add('hidden');
-                    callScreen.classList.remove('hidden');
-                    loggedInUserText.innerText = user;
+                const foundUser = users.find(u => u.username === user && u.password === pass);
+                if (foundUser) {
+                    handleLoginSuccess(foundUser.username, foundUser.avatar);
                 } else {
                     setStatus(authStatus, "Invalid credentials.", "danger");
                 }
-            } catch (err) {
-                setStatus(authStatus, err.message, "danger");
-            }
+            } catch (err) { setStatus(authStatus, err.message, "danger"); }
         };
 
-        // --- WEBRTC & DEVICE LOGIC ---
+        // --- CHAT LOGIC ---
+        function appendMessage(sender, text, avatar, isSelf) {
+            if(chatBox.innerHTML.includes("history will appear here")) chatBox.innerHTML = ""; // Clear placeholder
+            const msgDiv = document.createElement('div');
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            msgDiv.className = `chat-msg ${isSelf ? 'self' : 'other'}`;
+            msgDiv.innerHTML = `
+                <div class="msg-header">
+                    <img src="${avatar}" style="width:18px;height:18px;border-radius:50%">
+                    <span class="sender">${sender}</span>
+                </div>
+                <div>${text}</div>
+                <div class="timestamp">${time}</div>`;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
 
-        // Helper: Dynamically add video streams to the layout
+        function setupDataChannel(channel) {
+            channel.onopen = () => {
+                chatInput.disabled = false;
+                sendChatBtn.disabled = false;
+                chatInput.placeholder = "Type your message...";
+                setStatus(callStatus, "Connected! You can now chat.", "success");
+            };
+            channel.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                appendMessage(data.user, data.text, data.avatar, false);
+            };
+        }
+
+        sendChatBtn.onclick = () => {
+            const text = chatInput.value.trim();
+            if (!text || !dataChannel || dataChannel.readyState !== "open") return;
+            const msgObj = { user: currentUser, text: text, avatar: currentUserAvatar };
+            dataChannel.send(JSON.stringify(msgObj));
+            appendMessage(currentUser, text, currentUserAvatar, true);
+            chatInput.value = "";
+        };
+
+        chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendChatBtn.click(); });
+
+        // --- WEBRTC LOGIC ---
+
+        // Helper: Add small remote video
         function addRemoteVideoStream(stream) {
-            // Check if we already have a remote video, if so, we don't duplicate
             if(document.getElementById(`remote-${stream.id}`)) return;
-
             const wrapper = document.createElement('div');
             wrapper.className = 'video-wrapper';
             wrapper.id = `remote-${stream.id}`;
-
-            const label = document.createElement('h3');
-            label.innerText = "Participant";
-
+            const label = document.createElement('span');
+            label.className = 'vid-label';
+            label.innerText = "Peer";
             const remoteVid = document.createElement('video');
             remoteVid.autoplay = true;
             remoteVid.playsInline = true;
             remoteVid.srcObject = stream;
-
             wrapper.appendChild(label);
             wrapper.appendChild(remoteVid);
             videoGrid.appendChild(wrapper);
         }
 
-        // 1. Start Camera & Microphone
-        startCamBtn.onclick = async () => {
+        // 1. Init System (Grabs devices secretly to prepare tracks, but mutes them)
+        initSystemBtn.onclick = async () => {
             try {
+                setStatus(callStatus, "Requesting permissions...", "primary");
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 localVideo.srcObject = localStream;
-                localVideoContainer.style.display = 'flex';
                 
-                localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-                
-                // Listen for incoming dynamic streams
-                pc.ontrack = event => {
-                    addRemoteVideoStream(event.streams[0]);
-                };
+                // CRITICAL: Disable media tracks immediately so user is hidden/muted until they click the Video button
+                localStream.getTracks().forEach(track => {
+                    track.enabled = false; 
+                    pc.addTrack(track, localStream);
+                });
 
-                setStatus(callStatus, "Devices active. Create or Join a Room.", "success");
+                pc.ontrack = event => addRemoteVideoStream(event.streams[0]);
+                pc.ondatachannel = event => setupDataChannel(event.channel); // Receiver listens for data channel
+
+                setStatus(callStatus, "System Ready. Create or Join a Room.", "success");
+                initSystemBtn.disabled = true;
                 createCallBtn.disabled = false;
                 joinCallBtn.disabled = false;
-                startCamBtn.disabled = true;
+                toggleVideoUIBtn.disabled = false;
             } catch (error) {
-                setStatus(callStatus, "Error accessing devices. Check permissions.", "danger");
+                setStatus(callStatus, "Camera/Mic access denied. Cannot proceed.", "danger");
             }
         };
 
-        // Device Controls
-        toggleAudioBtn.onclick = () => {
-            isAudioMuted = !isAudioMuted;
-            localStream.getAudioTracks()[0].enabled = !isAudioMuted;
-            toggleAudioBtn.innerText = isAudioMuted ? "Unmute Mic" : "Mute Mic";
-            toggleAudioBtn.className = isAudioMuted ? "danger" : "secondary";
-        };
-
-        toggleVideoBtn.onclick = () => {
-            isVideoHidden = !isVideoHidden;
-            localStream.getVideoTracks()[0].enabled = !isVideoHidden;
-            toggleVideoBtn.innerText = isVideoHidden ? "Show Cam" : "Hide Cam";
-            toggleVideoBtn.className = isVideoHidden ? "danger" : "secondary";
+        // Video UI Toggle
+        toggleVideoUIBtn.onclick = () => {
+            isVideoActive = !isVideoActive;
+            // Enable/Disable actual hardware tracks
+            localStream.getTracks().forEach(track => track.enabled = isVideoActive);
+            
+            if (isVideoActive) {
+                videoGrid.classList.remove('hidden');
+                toggleVideoUIBtn.innerText = "Disable Video/Audio Feed";
+                toggleVideoUIBtn.className = "danger";
+            } else {
+                videoGrid.classList.add('hidden');
+                toggleVideoUIBtn.innerText = "Enable Video/Audio Feed";
+                toggleVideoUIBtn.className = "action";
+            }
         };
 
         // 2. Create Call (Caller)
         createCallBtn.onclick = async () => {
-            const offerDescription = await pc.createOffer();
-            await pc.setLocalDescription(offerDescription);
+            // Offerer creates the data channel FIRST
+            dataChannel = pc.createDataChannel("chat");
+            setupDataChannel(dataChannel);
 
-            const callData = { offer: { type: offerDescription.type, sdp: offerDescription.sdp } };
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            const callData = { offer: { type: offer.type, sdp: offer.sdp } };
             setStatus(callStatus, "Generating Room...", "primary");
 
             pc.onicegatheringstatechange = async () => {
@@ -418,13 +635,11 @@
                         });
                         const data = await response.json();
                         callBinIdInput.value = data.metadata.id;
-                        setStatus(callStatus, `Room Created! ID: ${data.metadata.id}. Waiting for peer...`, "success");
+                        setStatus(callStatus, `Room Created! ID: ${data.metadata.id}. Waiting for peer to join...`, "success");
                         checkAnswerBtn.disabled = false;
                         createCallBtn.disabled = true;
                         joinCallBtn.disabled = true;
-                    } catch (err) {
-                        setStatus(callStatus, "Network error creating room.", "danger");
-                    }
+                    } catch (err) { setStatus(callStatus, "Network error.", "danger"); }
                 }
             };
         };
@@ -432,21 +647,18 @@
         // 3. Join Call (Receiver)
         joinCallBtn.onclick = async () => {
             const sessionBinId = callBinIdInput.value.trim();
-            if (!sessionBinId) return alert("Please enter the Room ID.");
-
+            if (!sessionBinId) return alert("Enter Room ID.");
             setStatus(callStatus, "Joining Room...", "primary");
 
             try {
-                let response = await fetch(`https://api.jsonbin.io/v3/b/${sessionBinId}`, {
-                    headers: { 'X-Master-Key': MASTER_API_KEY }
-                });
-                let data = await response.json();
+                let res = await fetch(`https://api.jsonbin.io/v3/b/${sessionBinId}`, { headers: { 'X-Master-Key': MASTER_API_KEY } });
+                let data = await res.json();
                 
                 await pc.setRemoteDescription(new RTCSessionDescription(data.record.offer));
-                const answerDescription = await pc.createAnswer();
-                await pc.setLocalDescription(answerDescription);
+                const answer = await pc.createAnswer();
+                await pc.setLocalDescription(answer);
 
-                const updatedData = { ...data.record, answer: { type: answerDescription.type, sdp: answerDescription.sdp } };
+                const updatedData = { ...data.record, answer: { type: answer.type, sdp: answer.sdp } };
 
                 pc.onicegatheringstatechange = async () => {
                     if (pc.iceGatheringState === 'complete') {
@@ -456,38 +668,37 @@
                             headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_API_KEY },
                             body: JSON.stringify(updatedData)
                         });
-                        setStatus(callStatus, "Room Joined! Connecting streams...", "success");
+                        setStatus(callStatus, "Room Joined! Connecting...", "success");
                         createCallBtn.disabled = true;
                         joinCallBtn.disabled = true;
                     }
                 };
-            } catch (err) {
-                setStatus(callStatus, "Error joining room. Invalid ID?", "danger");
-            }
+            } catch (err) { setStatus(callStatus, "Error joining room.", "danger"); }
         };
 
-        // 4. Check for Answer (Caller check sync)
+        // 4. Sync (Caller checks for answer)
         checkAnswerBtn.onclick = async () => {
             const sessionBinId = callBinIdInput.value;
             setStatus(callStatus, "Syncing...", "primary");
-            
             try {
-                let response = await fetch(`https://api.jsonbin.io/v3/b/${sessionBinId}`, {
-                    headers: { 'X-Master-Key': MASTER_API_KEY }
-                });
-                let data = await response.json();
-                
-                if (!data.record.answer) {
-                    setStatus(callStatus, "No peers yet. Try syncing again shortly.", "danger");
-                    return;
-                }
-                
+                let res = await fetch(`https://api.jsonbin.io/v3/b/${sessionBinId}`, { headers: { 'X-Master-Key': MASTER_API_KEY } });
+                let data = await res.json();
+                if (!data.record.answer) return setStatus(callStatus, "No peers yet. Click sync again shortly.", "danger");
                 await pc.setRemoteDescription(new RTCSessionDescription(data.record.answer));
                 setStatus(callStatus, "Connection established!", "success");
                 checkAnswerBtn.disabled = true;
-            } catch (err) {
-                setStatus(callStatus, "Sync failed.", "danger");
-            }
+            } catch (err) { setStatus(callStatus, "Sync failed.", "danger"); }
+        };
+
+        // --- ON PAGE LOAD ---
+        window.onload = () => {
+            // Restore Theme
+            const savedTheme = localStorage.getItem('lunarTheme') || 'default';
+            applyTheme(savedTheme);
+
+            // Restore Session
+            const savedSession = JSON.parse(localStorage.getItem('lunarSession'));
+            if (savedSession) handleLoginSuccess(savedSession.user, savedSession.avatar);
         };
     </script>
 </body>
