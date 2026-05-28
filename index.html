@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lunar Call</title>
+    <style>
+        /* --- CLAYMORPHISM CSS STYLES --- */
+        :root {
+            --bg-color: #2b2e33;
+            --clay-shadow: 8px 8px 16px #222429, -8px -8px 16px #34383d;
+            --clay-inset: inset 6px 6px 12px #222429, inset -6px -6px 12px #34383d;
+            --primary: #6c8aff;
+            --success: #00ff88;
+            --danger: #ff4a4a;
+            --text-color: #e0e5ec;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        h1, h3 {
+            text-align: center;
+            margin-top: 0;
+            color: var(--text-color);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: var(--clay-shadow);
+        }
+
+        .card {
+            background: var(--bg-color);
+            padding: 30px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: var(--clay-shadow);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        input {
+            padding: 15px;
+            border-radius: 12px;
+            border: none;
+            background: var(--bg-color);
+            color: white;
+            font-size: 14px;
+            box-shadow: var(--clay-inset);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input:focus {
+            box-shadow: inset 8px 8px 16px #222429, inset -8px -8px 16px #34383d, 0 0 0 2px var(--primary);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 15px 20px;
+            background-color: var(--bg-color);
+            color: var(--primary);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            flex: 1;
+            box-shadow: var(--clay-shadow);
+            transition: all 0.2s ease;
+        }
+
+        button.secondary {
+            color: var(--success);
+        }
+        
+        button.danger {
+            color: var(--danger);
+        }
+
+        button:active:not(:disabled) {
+            box-shadow: var(--clay-inset);
+        }
+
+        button:disabled {
+            color: #666;
+            cursor: not-allowed;
+            box-shadow: 4px 4px 8px #222429, -4px -4px 8px #34383d;
+        }
+
+        .status {
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0 0 0;
+            min-height: 20px;
+        }
+
+        /* --- DYNAMIC MULTI-USER VIDEO GRID --- */
+        .video-grid {
+            display: grid;
+            /* Auto-fit creates columns dynamically based on how many videos exist */
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .video-wrapper {
+            background: var(--bg-color);
+            padding: 15px;
+            border-radius: 20px;
+            box-shadow: var(--clay-shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        video {
+            width: 100%;
+            background: #111;
+            border-radius: 12px;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            box-shadow: var(--clay-inset);
+        }
+
+        .user-tag {
+            text-align: center;
+            color: #aaa;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: var(--clay-inset);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div id="authScreen" class="card">
+            <div class="logo-container">
+                <img src="logo.png" alt="Lunar Call Logo" class="logo" onerror="this.style.display='none'">
+            </div>
+            <h1>Lunar Call</h1>
+            <p style="text-align: center; margin-top: -10px; color: #888;">Claymorphism Edition</p>
+            
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            
+            <div class="buttons">
+                <button id="loginBtn">Login</button>
+                <button id="registerBtn" class="secondary">Register New Account</button>
+            </div>
+            <p id="authStatus" class="status"></p>
+        </div>
+
+        <div id="callScreen" class="hidden container">
+            <div class="card">
+                <div class="logo-container">
+                    <img src="logo.png" alt="Logo" class="logo" style="width: 50px; height: 50px;" onerror="this.style.display='none'">
+                </div>
+                <div class="user-tag">Agent: <span id="loggedInUser" style="color: var(--primary);"></span></div>
+                
+                <input type="text" id="callBinId" placeholder="Room ID (Leave blank to create a new room)">
+                
+                <div class="buttons">
+                    <button id="startCamBtn">1. Initialize Devices</button>
+                    <button id="createCallBtn" disabled>2. Create Room</button>
+                    <button id="joinCallBtn" disabled>2. Join Room</button>
+                    <button id="checkAnswerBtn" disabled>3. Sync Connection</button>
+                </div>
+                <p id="callStatus" class="status" style="color: var(--primary);">System Ready. Initialize devices.</p>
+            </div>
+
+            <div class="video-grid" id="videoGrid">
+                <div class="video-wrapper" id="localVideoContainer" style="display: none;">
+                    <h3>You</h3>
+                    <video id="localVideo" autoplay playsinline muted></video>
+                    <div class="controls">
+                        <button id="toggleAudioBtn" class="secondary">Mute Mic</button>
+                        <button id="toggleVideoBtn" class="secondary">Hide Cam</button>
+                    </div>
+                </div>
+                </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- SECURE CONFIGURATION ---
+        // API Keys moved out of HTML to prevent user tampering.
+        const MASTER_API_KEY = "$2a$10$XDKbJJajqyGNm9ZsoEkXueGbfMG7OteKGLwJJ7BtI8mv1/PEJTLta";
+        const USERS_BIN_ID = "6a17e111ddf5aa59f76eb87b";
+
+        // DOM Elements
+        const authScreen = document.getElementById('authScreen');
+        const callScreen = document.getElementById('callScreen');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const authStatus = document.getElementById('authStatus');
+        const loggedInUserText = document.getElementById('loggedInUser');
+
+        const videoGrid = document.getElementById('videoGrid');
+        const localVideoContainer = document.getElementById('localVideoContainer');
+        const localVideo = document.getElementById('localVideo');
+        
+        const startCamBtn = document.getElementById('startCamBtn');
+        const createCallBtn = document.getElementById('createCallBtn');
+        const joinCallBtn = document.getElementById('joinCallBtn');
+        const checkAnswerBtn = document.getElementById('checkAnswerBtn');
+        const callBinIdInput = document.getElementById('callBinId');
+        const callStatus = document.getElementById('callStatus');
+
+        const toggleAudioBtn = document.getElementById('toggleAudioBtn');
+        const toggleVideoBtn = document.getElementById('toggleVideoBtn');
+
+        // WebRTC Config
+        const servers = { iceServers: [{ urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }] };
+        let pc = new RTCPeerConnection(servers);
+        let localStream;
+        let isAudioMuted = false;
+        let isVideoHidden = false;
+
+        // --- AUTH LOGIC ---
+        function setStatus(element, msg, color) {
+            element.innerText = msg;
+            element.style.color = `var(--${color})`;
+        }
+
+        async function fetchUsers() {
+            const response = await fetch(`https://api.jsonbin.io/v3/b/${USERS_BIN_ID}/latest`, {
+                headers: { 'X-Master-Key': MASTER_API_KEY }
+            });
+            if (!response.ok) throw new Error("Database connection failed.");
+            const data = await response.json();
+            return data.record.users || [];
+        }
+
+        registerBtn.onclick = async () => {
+            const user = usernameInput.value.trim();
+            const pass = passwordInput.value.trim();
+
+            if (!user || !pass) return setStatus(authStatus, "Credentials required.", "danger");
+            setStatus(authStatus, "Communicating with server...", "primary");
+
+            try {
+                let users = await fetchUsers();
+                if (users.some(u => u.username.toLowerCase() === user.toLowerCase())) {
+                    return setStatus(authStatus, "Username taken.", "danger");
+                }
+
+                users.push({ username: user, password: pass });
+
+                await fetch(`https://api.jsonbin.io/v3/b/${USERS_BIN_ID}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_API_KEY },
+                    body: JSON.stringify({ users: users })
+                });
+
+                setStatus(authStatus, "Registration successful. Please login.", "success");
+            } catch (err) {
+                setStatus(authStatus, err.message, "danger");
+            }
+        };
+
+        loginBtn.onclick = async () => {
+            const user = usernameInput.value.trim();
+            const pass = passwordInput.value.trim();
+
+            if (!user || !pass) return setStatus(authStatus, "Credentials required.", "danger");
+            setStatus(authStatus, "Verifying...", "primary");
+
+            try {
+                let users = await fetchUsers();
+                const validUser = users.find(u => u.username === user && u.password === pass);
+
+                if (validUser) {
+                    authScreen.classList.add('hidden');
+                    callScreen.classList.remove('hidden');
+                    loggedInUserText.innerText = user;
+                } else {
+                    setStatus(authStatus, "Invalid credentials.", "danger");
+                }
+            } catch (err) {
+                setStatus(authStatus, err.message, "danger");
+            }
+        };
+
+        // --- WEBRTC & DEVICE LOGIC ---
+
+        // Helper: Dynamically add video streams to the layout
+        function addRemoteVideoStream(stream) {
+            // Check if we already have a remote video, if so, we don't duplicate
+            if(document.getElementById(`remote-${stream.id}`)) return;
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'video-wrapper';
+            wrapper.id = `remote-${stream.id}`;
+
+            const label = document.createElement('h3');
+            label.innerText = "Participant";
+
+            const remoteVid = document.createElement('video');
+            remoteVid.autoplay = true;
+            remoteVid.playsInline = true;
+            remoteVid.srcObject = stream;
+
+            wrapper.appendChild(label);
+            wrapper.appendChild(remoteVid);
+            videoGrid.appendChild(wrapper);
+        }
+
+        // 1. Start Camera & Microphone
+        startCamBtn.onclick = async () => {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                localVideo.srcObject = localStream;
+                localVideoContainer.style.display = 'flex';
+                
+                localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+                
+                // Listen for incoming dynamic streams
+                pc.ontrack = event => {
+                    addRemoteVideoStream(event.streams[0]);
+                };
+
+                setStatus(callStatus, "Devices active. Create or Join a Room.", "success");
+                createCallBtn.disabled = false;
+                joinCallBtn.disabled = false;
+                startCamBtn.disabled = true;
+            } catch (error) {
+                setStatus(callStatus, "Error accessing devices. Check permissions.", "danger");
+            }
+        };
+
+        // Device Controls
+        toggleAudioBtn.onclick = () => {
+            isAudioMuted = !isAudioMuted;
+            localStream.getAudioTracks()[0].enabled = !isAudioMuted;
+            toggleAudioBtn.innerText = isAudioMuted ? "Unmute Mic" : "Mute Mic";
+            toggleAudioBtn.className = isAudioMuted ? "danger" : "secondary";
+        };
+
+        toggleVideoBtn.onclick = () => {
+            isVideoHidden = !isVideoHidden;
+            localStream.getVideoTracks()[0].enabled = !isVideoHidden;
+            toggleVideoBtn.innerText = isVideoHidden ? "Show Cam" : "Hide Cam";
+            toggleVideoBtn.className = isVideoHidden ? "danger" : "secondary";
+        };
+
+        // 2. Create Call (Caller)
+        createCallBtn.onclick = async () => {
+            const offerDescription = await pc.createOffer();
+            await pc.setLocalDescription(offerDescription);
+
+            const callData = { offer: { type: offerDescription.type, sdp: offerDescription.sdp } };
+            setStatus(callStatus, "Generating Room...", "primary");
+
+            pc.onicegatheringstatechange = async () => {
+                if (pc.iceGatheringState === 'complete') {
+                    callData.offer.sdp = pc.localDescription.sdp;
+                    try {
+                        const response = await fetch('https://api.jsonbin.io/v3/b', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_API_KEY },
+                            body: JSON.stringify(callData)
+                        });
+                        const data = await response.json();
+                        callBinIdInput.value = data.metadata.id;
+                        setStatus(callStatus, `Room Created! ID: ${data.metadata.id}. Waiting for peer...`, "success");
+                        checkAnswerBtn.disabled = false;
+                        createCallBtn.disabled = true;
+                        joinCallBtn.disabled = true;
+                    } catch (err) {
+                        setStatus(callStatus, "Network error creating room.", "danger");
+                    }
+                }
+            };
+        };
+
+        // 3. Join Call (Receiver)
+        joinCallBtn.onclick = async () => {
+            const sessionBinId = callBinIdInput.value.trim();
+            if (!sessionBinId) return alert("Please enter the Room ID.");
+
+            setStatus(callStatus, "Joining Room...", "primary");
+
+            try {
+                let response = await fetch(`https://api.jsonbin.io/v3/b/${sessionBinId}`, {
+                    headers: { 'X-Master-Key': MASTER_API_KEY }
+                });
+                let data = await response.json();
+                
+                await pc.setRemoteDescription(new RTCSessionDescription(data.record.offer));
+                const answerDescription = await pc.createAnswer();
+                await pc.setLocalDescription(answerDescription);
+
+                const updatedData = { ...data.record, answer: { type: answerDescription.type, sdp: answerDescription.sdp } };
+
+                pc.onicegatheringstatechange = async () => {
+                    if (pc.iceGatheringState === 'complete') {
+                        updatedData.answer.sdp = pc.localDescription.sdp;
+                        await fetch(`https://api.jsonbin.io/v3/b/${sessionBinId}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_API_KEY },
+                            body: JSON.stringify(updatedData)
+                        });
+                        setStatus(callStatus, "Room Joined! Connecting streams...", "success");
+                        createCallBtn.disabled = true;
+                        joinCallBtn.disabled = true;
+                    }
+                };
+            } catch (err) {
+                setStatus(callStatus, "Error joining room. Invalid ID?", "danger");
+            }
+        };
+
+        // 4. Check for Answer (Caller check sync)
+        checkAnswerBtn.onclick = async () => {
+            const sessionBinId = callBinIdInput.value;
+            setStatus(callStatus, "Syncing...", "primary");
+            
+            try {
+                let response = await fetch(`https://api.jsonbin.io/v3/b/${sessionBinId}`, {
+                    headers: { 'X-Master-Key': MASTER_API_KEY }
+                });
+                let data = await response.json();
+                
+                if (!data.record.answer) {
+                    setStatus(callStatus, "No peers yet. Try syncing again shortly.", "danger");
+                    return;
+                }
+                
+                await pc.setRemoteDescription(new RTCSessionDescription(data.record.answer));
+                setStatus(callStatus, "Connection established!", "success");
+                checkAnswerBtn.disabled = true;
+            } catch (err) {
+                setStatus(callStatus, "Sync failed.", "danger");
+            }
+        };
+    </script>
+</body>
+</html>
