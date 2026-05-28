@@ -3,392 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lunar Call - Chat & Video</title>
+    <title>Lunar Call — Workspace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: 'var(--primary)',
+              panel: 'var(--panel-bg)',
+              border: 'var(--border-color)',
+            }
+          }
+        }
+      }
+    </script>
     <style>
-        /* --- CLAYMORPHISM & RESPONSIVE CSS STYLES --- */
         :root {
-            /* Default Theme: Warm Orange */
-            --bg-color: #2d2a28;
-            --clay-shadow: 8px 8px 16px #211f1d, -8px -8px 16px #393533;
-            --clay-inset: inset 6px 6px 12px #211f1d, inset -6px -6px 12px #393533;
-            --primary: #e67e22;
-            --success: #27ae60;
-            --danger: #c0392b;
-            --text-color: #ecf0f1;
-            --chat-bg: #252321;
+            /* Default Theme: Warm Orange (No Neon) */
+            --bg-color: #0b141a;
+            --panel-bg: #111b21;
+            --primary: #f59e0b;
+            --text-color: #e9edef;
+            --border-color: rgba(255,255,255,0.08);
+            --chat-bubble-in: #202c33;
+            --chat-bubble-out: #7c2d12;
         }
 
         [data-theme="sakura"] {
             --bg-color: #fff0f3;
-            --clay-shadow: 8px 8px 16px #dec9ce, -8px -8px 16px #ffffff;
-            --clay-inset: inset 6px 6px 12px #dec9ce, inset -6px -6px 12px #ffffff;
+            --panel-bg: #ffffff;
             --primary: #ffb7c5;
-            --success: #98fb98;
-            --danger: #ff6b6b;
             --text-color: #5d2e46;
-            --chat-bg: #ffe4e9;
+            --border-color: rgba(93, 46, 70, 0.1);
+            --chat-bubble-in: #ffffff;
+            --chat-bubble-out: #ffd1dc;
         }
 
         [data-theme="midnight"] {
-            --bg-color: #2b2e33;
-            --clay-shadow: 8px 8px 16px #222429, -8px -8px 16px #34383d;
-            --clay-inset: inset 6px 6px 12px #222429, inset -6px -6px 12px #34383d;
-            --primary: #6c8aff;
-            --success: #00ff88;
-            --danger: #ff4a4a;
-            --text-color: #e0e5ec;
-            --chat-bg: #26282d;
+            --bg-color: #0f172a;
+            --panel-bg: #1e293b;
+            --primary: #38bdf8;
+            --text-color: #f1f5f9;
+            --border-color: rgba(255,255,255,0.1);
+            --chat-bubble-in: #334155;
+            --chat-bubble-out: #0369a1;
         }
 
         [data-theme="forest"] {
-            --bg-color: #2d3436;
-            --clay-shadow: 8px 8px 16px #23292a, -8px -8px 16px #373f42;
-            --clay-inset: inset 6px 6px 12px #23292a, inset -6px -6px 12px #373f42;
-            --primary: #55efc4;
-            --success: #00b894;
-            --danger: #fab1a0;
-            --text-color: #dfe6e9;
-            --chat-bg: #212628;
+            --bg-color: #064e3b;
+            --panel-bg: #065f46;
+            --primary: #10b981;
+            --text-color: #ecfdf5;
+            --border-color: rgba(255,255,255,0.1);
+            --chat-bubble-in: #047857;
+            --chat-bubble-out: #064e3b;
         }
 
         body {
-            font-family: system-ui, -apple-system, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-
-        .container {
-            max-width: 1200px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
         }
         
-        .theme-selector-container {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: -10px;
+        .loom-wallpaper {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 22px 22px;
         }
 
-        #themeSelect {
-            width: auto;
-            padding: 8px 15px;
-        }
-
-        h1, h2, h3 {
-            text-align: center;
-            margin-top: 0;
-            color: var(--text-color);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .logo-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 10px;
-        }
-
-        .logo {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            box-shadow: var(--clay-shadow);
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            box-shadow: var(--clay-inset);
-        }
-
-        .card {
-            background: var(--bg-color);
-            padding: 25px;
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            box-shadow: var(--clay-shadow);
-        }
-
-        .hidden { display: none !important; }
-
-        input {
-            padding: 15px;
-            border-radius: 12px;
-            border: none;
-            background: var(--bg-color);
-            color: white;
-            font-size: 14px;
-            box-shadow: var(--clay-inset);
-            outline: none;
-            transition: all 0.2s ease;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        input:focus {
-            box-shadow: inset 8px 8px 16px #222429, inset -8px -8px 16px #34383d, 0 0 0 2px var(--primary);
-        }
-
-        .buttons {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-
-        button {
-            padding: 15px 20px;
-            background-color: var(--bg-color);
-            color: var(--primary);
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-            flex: 1;
-            min-width: 140px;
-            box-shadow: var(--clay-shadow);
-            transition: all 0.2s ease;
-        }
-
-        button.secondary { color: var(--success); }
-        button.danger { color: var(--danger); }
-        button.action { background-color: var(--primary); color: white; box-shadow: 4px 4px 10px rgba(108, 138, 255, 0.4); }
-
-        button:active:not(:disabled) { box-shadow: var(--clay-inset); }
-        button:disabled { color: #666; cursor: not-allowed; box-shadow: 4px 4px 8px #222429, -4px -4px 8px #34383d; }
-
-        .status { font-weight: bold; text-align: center; margin: 10px 0 0 0; min-height: 20px; }
-
-        /* --- WORKSPACE LAYOUT (Responsive Split) --- */
-        .workspace {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 100%;
-        }
-
-        .chat-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-width: 300px;
-        }
-
-        .video-section {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-bottom: 10px;
-            min-width: 250px;
-        }
-
-        /* --- CHAT INTERFACE --- */
-        .chat-box {
-            height: 400px;
-            background: var(--chat-bg);
-            border-radius: 15px;
-            padding: 15px;
-            overflow-y: auto;
-            box-shadow: var(--clay-inset);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .chat-msg {
-            padding: 10px 15px;
-            border-radius: 12px;
-            max-width: 80%;
-            font-size: 14px;
-            line-height: 1.4;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .chat-msg.self {
-            background-color: var(--primary);
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 2px;
-        }
-
-        .chat-msg.other {
-            background-color: #3a3f47;
-            color: var(--text-color);
-            align-self: flex-start;
-            border-bottom-left-radius: 2px;
-        }
-
-        .timestamp {
-            font-size: 10px;
-            opacity: 0.6;
-            margin-top: 4px;
-            text-align: right;
-        }
+        .scrollbar::-webkit-scrollbar { width: 6px; }
+        .scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
         
-        .chat-msg .msg-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .chat-msg .sender {
-            font-size: 11px;
-            opacity: 0.7;
-            margin-bottom: 4px;
-            display: block;
-        }
-
-        .chat-input-wrapper {
-            display: flex;
-            gap: 10px;
-        }
-
-        /* --- SMALL VIDEO GRID --- */
-        .video-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 15px;
-            width: 100%;
-        }
-
-        .video-wrapper {
-            background: var(--bg-color);
-            padding: 8px;
-            border-radius: 15px;
-            box-shadow: var(--clay-inset);
-            display: flex;
-            flex-direction: column;
-            max-width: 180px; /* Forces videos to be small */
-        }
-
-        video {
-            width: 100%;
-            background: #111;
-            border-radius: 10px;
-            aspect-ratio: 16/9;
-            object-fit: cover;
-            box-shadow: var(--clay-inset);
-        }
-
-        .vid-label {
-            font-size: 12px;
-            color: #aaa;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        /* --- MOBILE RESPONSIVENESS --- */
-        @media (max-width: 768px) {
-            .workspace {
-                flex: none;
-            }
-            .chat-box {
-                height: 300px;
-            }
-            .video-wrapper {
-                max-width: 140px; /* Even smaller on mobile */
-            }
-        }
+        .chat-msg.self { background: var(--chat-bubble-out); align-self: flex-end; border-bottom-right-radius: 2px; }
+        .chat-msg.other { background: var(--chat-bubble-in); align-self: flex-start; border-bottom-left-radius: 2px; }
+        
+        .video-wrapper video { width: 100%; border-radius: 12px; aspect-ratio: 16/9; object-fit: cover; background: #000; }
     </style>
 </head>
-<body>
+<body class="h-screen flex flex-col items-center p-0 md:p-4 overflow-hidden">
 
-    <div class="container">
+    <!-- Theme Selector Top Right -->
+    <div class="absolute top-4 right-4 z-50">
+        <select id="themeSelect" class="bg-panel border border-border text-brand text-xs font-bold p-2 rounded-xl outline-none shadow-lg">
+            <option value="default">🍊 Warm Orange</option>
+            <option value="sakura">🌸 Sakura Blossom</option>
+            <option value="midnight">🌙 Midnight Blue</option>
+            <option value="forest">🌲 Forest Deep</option>
+        </select>
+    </div>
+
+    <!-- Authentication Screen -->
+    <div id="authScreen" class="w-full max-w-md mt-20 p-6 bg-panel rounded-3xl shadow-2xl border border-border">
+        <div class="flex justify-center mb-6">
+            <img src="logo.png" class="w-20 h-20 rounded-2xl shadow-lg" onerror="this.src='https://ui-avatars.com/api/?name=Lunar&background=random'">
+        </div>
+        <h1 class="text-3xl font-bold text-center mb-2">Lunar Call</h1>
+        <p class="text-sm opacity-60 text-center mb-8">Secure P2P Video & Chat</p>
         
-        <div class="theme-selector-container">
-            <select id="themeSelect" class="card" style="padding: 10px; border-radius: 10px; cursor: pointer; color: var(--primary); font-weight: bold;">
-                <option value="default">🍊 Warm Orange</option>
-                <option value="sakura">🌸 Sakura Blossom</option>
-                <option value="midnight">🌙 Midnight Blue</option>
-                <option value="forest">🌲 Forest Deep</option>
-            </select>
-        </div>
-
-        <div id="authScreen" class="card">
-            <div class="logo-container">
-                <img src="logo.png" alt="Lunar Call" class="logo" onerror="this.style.display='none'">
+        <div class="space-y-4">
+            <input type="text" id="username" placeholder="Username" class="w-full bg-black/20 p-4 rounded-2xl outline-none border border-border focus:border-brand/50 transition">
+            <input type="password" id="password" placeholder="Password" class="w-full bg-black/20 p-4 rounded-2xl outline-none border border-border focus:border-brand/50 transition">
+            <input type="text" id="pfpUrl" placeholder="Avatar URL (Optional)" class="w-full bg-black/20 p-4 rounded-2xl outline-none border border-border focus:border-brand/50 transition">
+            
+            <div class="flex gap-3 pt-4">
+                <button id="loginBtn" class="flex-1 bg-brand text-black font-bold p-4 rounded-2xl hover:brightness-110 transition">Login</button>
+                <button id="registerBtn" class="flex-1 border border-border font-bold p-4 rounded-2xl hover:bg-white/5 transition">Register</button>
             </div>
-            <h1>Lunar Call</h1>
-            
-            <p style="font-size: 12px; text-align: center; color: #aaa; margin-top: -15px;">Secure Video & Chat Experience</p>
-            
-            <input type="text" id="username" placeholder="Username" autocomplete="off">
-            <input type="password" id="password" placeholder="Password" autocomplete="off">
-            <input type="text" id="pfpUrl" placeholder="Profile Picture URL (Optional)">
-            
-            <div class="buttons">
-                <button id="loginBtn">Login</button>
-                <button id="registerBtn" class="secondary">Register</button>
-            </div>
-            <p id="authStatus" class="status"></p>
+            <p id="authStatus" class="text-center text-sm font-medium mt-4 h-5"></p>
         </div>
+    </div>
 
-        <div id="appScreen" class="hidden container">
-            
-            <div class="card">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                    <img id="userPfp" src="" class="user-avatar" onerror="this.src='https://ui-avatars.com/api/?name=User'">
-                    <h2 style="margin: 0;">Room Dashboard</h2>
-                    </div>
-                    <button id="logoutBtn" style="min-width: 80px; flex: none; padding: 8px;" class="danger">Logout</button>
+    <!-- Main Application UI -->
+    <div id="appScreen" class="hidden w-full max-w-6xl h-full flex flex-col md:flex-row gap-4">
+        
+        <!-- Left Sidebar: Room Controls -->
+        <aside class="w-full md:w-80 bg-panel rounded-3xl border border-border p-5 flex flex-col gap-4 shadow-xl">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-3">
+                    <img id="userPfp" class="w-10 h-10 rounded-full border border-border object-cover">
+                    <span id="loggedInUser" class="font-bold text-sm truncate"></span>
                 </div>
-                <p style="text-align: center; margin-top: -10px; font-size: 14px; color: #aaa;">Logged in as <span id="loggedInUser" style="color: var(--primary); font-weight: bold;"></span></p>
-                <input type="text" id="callBinId" placeholder="Room ID (Leave blank to create new room)">
+                <button id="logoutBtn" class="text-xs opacity-50 hover:text-red-400 transition">Logout</button>
+            </div>
+
+            <div class="space-y-4">
+                <label class="text-[10px] uppercase font-bold tracking-widest opacity-40">Room Settings</label>
+                <input type="text" id="callBinId" placeholder="Room ID" class="w-full bg-black/20 p-3 rounded-xl text-sm border border-border outline-none focus:border-brand/50">
                 
-                <div class="buttons">
-                    <button id="initSystemBtn">1. Initialize System</button>
-                    <button id="createCallBtn" disabled>2. Create Room</button>
-                    <button id="joinCallBtn" disabled>2. Join Room</button>
-                    <button id="checkAnswerBtn" disabled>3. Sync Connection</button>
+                <div class="flex flex-col gap-2">
+                    <button id="initSystemBtn" class="bg-white/5 border border-border p-3 rounded-xl text-xs font-bold hover:bg-white/10 transition">1. Initialize Hardware</button>
+                    <button id="createCallBtn" disabled class="bg-brand text-black p-3 rounded-xl text-xs font-bold disabled:opacity-30">2. Create Room</button>
+                    <button id="joinCallBtn" disabled class="bg-white/5 border border-border p-3 rounded-xl text-xs font-bold disabled:opacity-30">2. Join Room</button>
+                    <button id="checkAnswerBtn" disabled class="bg-white/5 border border-border p-3 rounded-xl text-xs font-bold disabled:opacity-30">3. Sync Peer</button>
                 </div>
-                <p id="callStatus" class="status" style="color: var(--primary);">System Ready. Click Initialize.</p>
+                <div id="callStatus" class="text-[11px] p-3 rounded-xl bg-black/20 border border-border text-brand leading-relaxed">System Ready. Click Initialize.</div>
             </div>
+        </aside>
 
-            <div class="workspace">
-                <div class="card video-section">
-                    <h3>Video & Voice</h3>
-                    <p style="font-size: 12px; text-align: center; color: #aaa;">Feed is hidden by default for privacy.</p>
-                    <button id="toggleVideoUIBtn" class="action" disabled>Enable Video/Audio Feed</button>
-                    
-                    <div id="videoGrid" class="video-grid hidden">
-                        <div class="video-wrapper">
-                            <span class="vid-label">You</span>
-                            <video id="localVideo" autoplay playsinline muted></video>
-                        </div>
+        <!-- Main Workspace: Video Top, Chat Bottom -->
+        <main class="flex-1 flex flex-col gap-4 min-h-0">
+            
+            <!-- Video Section (TOP) -->
+            <section class="bg-panel rounded-3xl border border-border p-4 shadow-xl">
+                <div class="flex items-center justify-between mb-4 px-2">
+                    <h3 class="text-xs font-bold uppercase tracking-widest opacity-40"><i class="fa-solid fa-video mr-2"></i>Media Feed</h3>
+                    <button id="toggleVideoUIBtn" disabled class="bg-brand/10 text-brand text-[10px] font-bold px-4 py-2 rounded-lg border border-brand/20 hover:bg-brand/20 transition">Enable Camera</button>
+                </div>
+                
+                <div id="videoGrid" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="video-wrapper relative group">
+                        <span class="absolute top-3 left-3 bg-black/60 px-2 py-1 rounded text-[10px] font-bold z-10">You</span>
+                        <video id="localVideo" autoplay playsinline muted></video>
                     </div>
+                    <!-- Remote videos append here -->
+                </div>
+                <div id="videoPlaceholder" class="h-32 flex items-center justify-center border-2 border-dashed border-border rounded-2xl opacity-20">
+                    <p class="text-xs italic">Media stream inactive</p>
+                </div>
+            </section>
+
+            <!-- Chat Section (BOTTOM) -->
+            <section class="flex-1 bg-panel rounded-3xl border border-border flex flex-col overflow-hidden shadow-xl loom-wallpaper">
+                <div class="p-4 border-b border-border bg-panel/50 backdrop-blur">
+                    <h3 class="text-xs font-bold uppercase tracking-widest opacity-40"><i class="fa-solid fa-message mr-2"></i>Secure Chat</h3>
                 </div>
 
-                <div class="card chat-section">
-                    <h3>Room Chat</h3>
-                    <div id="chatBox" class="chat-box">
-                        <div style="text-align: center; color: #666; font-size: 12px; margin-top: auto;">Chat history will appear here once connected...</div>
-                    </div>
-                    <div class="chat-input-wrapper">
-                        <input type="text" id="chatInput" placeholder="Type a message..." disabled>
-                        <button id="sendChatBtn" disabled style="flex: 0 0 80px; min-width: 80px;">Send</button>
-                    </div>
+                <div id="chatBox" class="flex-1 overflow-y-auto p-4 flex flex-col gap-3 scrollbar">
+                    <div class="mt-auto text-center py-10 opacity-30 text-xs italic">Messages are encrypted and transmitted via DataChannel</div>
                 </div>
-            </div>
-        </div>
 
+                <div class="p-4 bg-panel/50 backdrop-blur flex gap-3">
+                    <input type="text" id="chatInput" disabled placeholder="Wait for connection..." class="flex-1 bg-black/20 p-4 rounded-2xl outline-none border border-border focus:border-brand/50 transition">
+                    <button id="sendChatBtn" disabled class="w-14 h-14 bg-brand text-black rounded-2xl flex items-center justify-center hover:brightness-110 disabled:opacity-30 transition">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </section>
+        </main>
     </div>
 
     <script>
@@ -396,7 +188,7 @@
         const MASTER_API_KEY = "$2a$10$XDKbJJajqyGNm9ZsoEkXueGbfMG7OteKGLwJJ7BtI8mv1/PEJTLta";
         const USERS_BIN_ID = "6a17e111ddf5aa59f76eb87b";
 
-        // DOM Elements - Auth
+        // DOM UI Mapping
         const authScreen = document.getElementById('authScreen');
         const appScreen = document.getElementById('appScreen');
         const usernameInput = document.getElementById('username');
@@ -405,26 +197,22 @@
         const authStatus = document.getElementById('authStatus');
         const loggedInUserText = document.getElementById('loggedInUser');
         const userPfpImg = document.getElementById('userPfp');
-        let currentUserAvatar = "";
-        let currentUser = "";
-
-        // DOM Elements - Setup
         const initSystemBtn = document.getElementById('initSystemBtn');
         const createCallBtn = document.getElementById('createCallBtn');
         const joinCallBtn = document.getElementById('joinCallBtn');
         const checkAnswerBtn = document.getElementById('checkAnswerBtn');
         const callBinIdInput = document.getElementById('callBinId');
         const callStatus = document.getElementById('callStatus');
-
-        // DOM Elements - Chat
         const chatBox = document.getElementById('chatBox');
         const chatInput = document.getElementById('chatInput');
         const sendChatBtn = document.getElementById('sendChatBtn');
-
-        // DOM Elements - Video
         const toggleVideoUIBtn = document.getElementById('toggleVideoUIBtn');
         const videoGrid = document.getElementById('videoGrid');
         const localVideo = document.getElementById('localVideo');
+        const videoPlaceholder = document.getElementById('videoPlaceholder');
+
+        let currentUserAvatar = "";
+        let currentUser = "";
 
         // WebRTC Config
         const servers = { iceServers: [{ urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }] };
@@ -453,10 +241,11 @@
         function handleLoginSuccess(user, avatar) {
             currentUser = user;
             currentUserAvatar = avatar;
-            loggedInUserText.innerText = user;
+            loggedInUserText.innerText = `@${user}`;
             userPfpImg.src = avatar;
-            authScreen.classList.add('hidden');
+            authScreen.style.display = 'none';
             appScreen.classList.remove('hidden');
+            appScreen.classList.add('flex');
             localStorage.setItem('lunarSession', JSON.stringify({ user, avatar }));
         }
 
@@ -556,11 +345,11 @@
         function addRemoteVideoStream(stream) {
             if(document.getElementById(`remote-${stream.id}`)) return;
             const wrapper = document.createElement('div');
-            wrapper.className = 'video-wrapper';
+            wrapper.className = 'video-wrapper relative group';
             wrapper.id = `remote-${stream.id}`;
             const label = document.createElement('span');
-            label.className = 'vid-label';
-            label.innerText = "Peer";
+            label.className = 'absolute top-3 left-3 bg-black/60 px-2 py-1 rounded text-[10px] font-bold z-10';
+            label.innerText = "Partner";
             const remoteVid = document.createElement('video');
             remoteVid.autoplay = true;
             remoteVid.playsInline = true;
@@ -604,12 +393,14 @@
             
             if (isVideoActive) {
                 videoGrid.classList.remove('hidden');
-                toggleVideoUIBtn.innerText = "Disable Video/Audio Feed";
-                toggleVideoUIBtn.className = "danger";
+                videoPlaceholder.classList.add('hidden');
+                toggleVideoUIBtn.innerText = "Disable Camera";
+                toggleVideoUIBtn.classList.add('text-red-400', 'border-red-400/20', 'bg-red-400/10');
             } else {
                 videoGrid.classList.add('hidden');
-                toggleVideoUIBtn.innerText = "Enable Video/Audio Feed";
-                toggleVideoUIBtn.className = "action";
+                videoPlaceholder.classList.remove('hidden');
+                toggleVideoUIBtn.innerText = "Enable Camera";
+                toggleVideoUIBtn.classList.remove('text-red-400', 'border-red-400/20', 'bg-red-400/10');
             }
         };
 
